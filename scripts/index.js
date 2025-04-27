@@ -5,13 +5,13 @@ const $ = document.querySelector.bind(document);
 const placesList = $('.places__list');
 
 // Сохраняю шаблон карточки
-const cardTemplate = $('#card-template');
+const cardTemplate = $('#card-template').content;
 
 //Функция создания карточки
 function createCard(cardData) {
 
 // Копирую содержимое шаблона карточки
-    const cardItem = cardTemplate.content.cloneNode(true);
+    const cardItem = cardTemplate.querySelector('.card').cloneNode(true);
 
 
 // Сохраняю кнопку удаления карточки
@@ -40,7 +40,7 @@ function createCard(cardData) {
 
 //Функция удаления карточек
 function deleteCard(element) {
-    element.closest('.card').remove();
+    element.remove();
 }
 
 // Передаю элементы массива с информацией о карточках в функцию создания карточки
