@@ -21,9 +21,5 @@
   "bugs": {
     "url": "https://github.com/creator-of-masterpieces/mesto-project-ff/issues"
   },
-  "homepage": "https://github.com/creator-of-masterpieces/mesto-project-ff#readme",
-  "dependencies": {
-    "prettier": "^3.5.3",
-    "stylelint": "^16.19.1"
-  }
+  "homepage": "https://github.com/creator-of-masterpieces/mesto-project-ff#readme"
 }
