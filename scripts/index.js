@@ -1,8 +1,8 @@
 // Записал в переменную $ вызов метода querySelector, привязанного к объекту document
 const $ = document.querySelector.bind(document);
 
-// Записал список карточек в переменную placesList
-const placesList = $('.places__list');
+// Записал список карточек в переменную placesCardList
+const placesCardList = $('.places__list');
 
 // Сохраняю шаблон карточки
 const cardTemplate = $('#card-template').content;
@@ -47,8 +47,5 @@ function deleteCard(element) {
 initialCards.forEach((item) => {
 
 // Добавляю на страницу список заполненных карточек
-    placesList.append(createCard(item));
+placesCardList.append(createCard(item));
 })
-
-
-// @todo: Функция удаления карточки
