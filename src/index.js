@@ -1,3 +1,11 @@
+//Импортирую JS
+import './components/card.js';
+import './components/modal.js';
+import initialCards from './components/cards.js';
+
+//Импортирую CSS
+import './pages/index.css';
+
 // Записал в переменную $ вызов метода querySelector, привязанного к объекту document
 const $ = document.querySelector.bind(document);
 
