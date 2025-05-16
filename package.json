@@ -4,13 +4,8 @@
   "description": "https://github.com/creator-of-masterpieces/mesto-project-ff.git",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "check": "prettier --check './**/*.{html,css,js}'",
-    "format": "prettier --write './**/*.{html,css,js}'",
-    "lint": "stylelint \"**/*.css\"",
-    "lintfix": "stylelint \"**/*.css\" --fix",
-    "checkAll": "npm run check && npm run lint",
-    "fixAll": "npm run format && npm run lintfix"
+    "dev": "webpack serve --mode development",
+    "build": "webpack --mode production"
   },
   "repository": {
     "type": "git",
@@ -21,5 +16,10 @@
   "bugs": {
     "url": "https://github.com/creator-of-masterpieces/mesto-project-ff/issues"
   },
-  "homepage": "https://github.com/creator-of-masterpieces/mesto-project-ff#readme"
+  "homepage": "https://github.com/creator-of-masterpieces/mesto-project-ff#readme",
+  "devDependencies": {
+    "webpack": "^5.99.8",
+    "webpack-cli": "^6.0.1",
+    "webpack-dev-server": "^5.2.1"
+  }
 }
