@@ -1,58 +1,71 @@
-//Импортирую JS
+
+
+// Импорты
+
+// Импорт JS
 import './components/card.js';
 import './components/modal.js';
 import initialCards from './components/cards.js';
 
-//Импортирую CSS
+// Импорт CSS
 import './pages/index.css';
 
-// Записал в переменную $ вызов метода querySelector, привязанного к объекту document
+// Забиндил поиск элемента в DOM
 const $ = document.querySelector.bind(document);
+
+
+// Переменные
 
 // Сохраняю шаблон карточки
 const cardTemplate = $('#card-template').content;
 
-// Записал список карточек в переменную placesCardList
+// Записал список карточек
 const placesCardList = $('.places__list');
 
-//Функция создания карточки принимает данные для заполнения карточки и функцию удаления карточки
+
+// Функции
+
+// Функция создания карточки
+// принимает данные для заполнения карточки и функцию удаления карточки
 function createCard(cardData, deleteFunction) {
 
-// Копирую содержимое шаблона карточки
+// Копирует шаблон карточки
     const cardItem = cardTemplate.querySelector('.card').cloneNode(true);
 
-// Сохраняю кнопку удаления карточки
+// Кнопка удаления карточки
     const deleteButton = cardItem.querySelector('.card__delete-button');
 
-// Сохраняю обложку карточки
+// Картинка карточки
     const cardImage = cardItem.querySelector('.card__image');
 
-// Добавляю обработчик клика на кнопку удаления карточки
+// Слушатель кнопки удаления карточки
     deleteButton.addEventListener('click', () => {
         deleteFunction(cardItem);
     });
 
-// Задаю текст заголовка карточки
+// Записывает заголовок карточки
     cardItem.querySelector('.card__title').textContent = cardData.name;
 
-// Задаю значение атрибутов картинки
+// Записывает ссылку и альт. текст картинки карточки
     Object.assign(cardImage, {
         src: cardData.link,
         alt: cardData.name,
     })
 
-// Ворзвращаю заполненную карточку
+// Возвращает заполненную карточку
     return cardItem;
 }
 
-//Функция удаления карточек
+// Функция удаления карточек
+// Принимает карточку
 function deleteCard(element) {
     element.remove();
 }
 
-// Передаю элементы массива с информацией о карточках в функцию создания карточки
+// Перебирает массив с данными карточек,
+// передаёт данные карточек в функцию создания карточки
 initialCards.forEach((item) => {
 
-// Добавляю на страницу список заполненных карточек
+// Добавляет на страницу список заполненных карточек
 placesCardList.append(createCard(item, deleteCard));
 })
