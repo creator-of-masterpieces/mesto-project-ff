@@ -1,10 +1,8 @@
-
-
 // Импорты
 
 // Импорт JS
-import './components/card.js';
-import './components/modal.js';
+
+import {addLike, deleteLike} from './components/card.js';
 import initialCards from './components/cards.js';
 
 // Импорт CSS
@@ -22,18 +20,23 @@ const cardTemplate = $('#card-template').content;
 // Записал список карточек
 const placesCardList = $('.places__list');
 
+// Обработчик клика кнопки лайка
+
 
 // Функции
 
 // Функция создания карточки
 // принимает данные для заполнения карточки и функцию удаления карточки
-function createCard(cardData, deleteFunction) {
+function createCard(cardData, deleteFunction, addLike, deleteLike) {
 
 // Копирует шаблон карточки
     const cardItem = cardTemplate.querySelector('.card').cloneNode(true);
 
 // Кнопка удаления карточки
     const deleteButton = cardItem.querySelector('.card__delete-button');
+
+// Кнопка лайка карточки
+    const likeButton = cardItem.querySelector('.card__like-button');
 
 // Картинка карточки
     const cardImage = cardItem.querySelector('.card__image');
@@ -43,10 +46,19 @@ function createCard(cardData, deleteFunction) {
         deleteFunction(cardItem);
     });
 
+// Слушатель кнопки лайка карточки
+    likeButton.addEventListener('click', () => {
+        if (likeButton.classList.contains('card__like-button_is-active')) {
+            deleteLike(likeButton);
+        } else {
+            addLike(likeButton);
+        }
+    });
+
 // Записывает заголовок карточки
     cardItem.querySelector('.card__title').textContent = cardData.name;
 
-// Записывает ссылку и альт. текст картинки карточки
+// Записывает ссылку и альт текст картинки карточки
     Object.assign(cardImage, {
         src: cardData.link,
         alt: cardData.name,
@@ -57,7 +69,7 @@ function createCard(cardData, deleteFunction) {
 }
 
 // Функция удаления карточек
-// Принимает карточку
+// принимает карточку
 function deleteCard(element) {
     element.remove();
 }
@@ -67,5 +79,5 @@ function deleteCard(element) {
 initialCards.forEach((item) => {
 
 // Добавляет на страницу список заполненных карточек
-placesCardList.append(createCard(item, deleteCard));
+    placesCardList.append(createCard(item, deleteCard, addLike, deleteLike));
 })
