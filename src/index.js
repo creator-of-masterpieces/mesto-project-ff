@@ -64,11 +64,16 @@ const popupCardImage = $('.popup_type_image');
 // Форма редактирования профиля
 const formEditProfile = document.forms['edit-profile'];
 
-
-// Текстовое поле с именем пользователя формы редактирования профиля
+/**
+ * Текстовое поле с именем пользователя формы редактирования профиля
+ * @type {HTMLInputElement}
+ */
 let profileNameInput =  formEditProfile.elements['name'];
 
-// Текстовое поле с профессией пользователя формы редактирования профиля
+/**
+ * Текстовое поле с профессией пользователя формы редактирования профиля
+ * @type {HTMLInputElement}
+ */
 let profileDescriptionInput =  formEditProfile.elements['description'];
 
 // Форма добавления карточки
@@ -80,7 +85,11 @@ const placeNameInput = formAddCard.elements['place-name'];
 // Текстовое поле со ссылкой на картинку формы добавления карточки
 const placeLinkInput = formAddCard.elements['link'];
 
-// Заголовок профиля
+
+/**
+ * Заголовок профиля
+ * @type {*|jQuery|HTMLElement}
+ */
 let profileTitle = $('.profile__title');
 
 // Описание профиля
