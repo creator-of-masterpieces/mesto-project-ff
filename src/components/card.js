@@ -1,10 +1,12 @@
-
-//  Принимает на вход элемент
-//  добавляет элементу класс card__like-button_is-active
+//  Функция добавления лайка
+//  Добавляет элементу класс card__like-button_is-active
 
 function addLike(element) {
     element.classList.add('card__like-button_is-active');
 }
+
+//  Функция удаления лайка
+//  Удаляет у элемента класс card__like-button_is-active
 
 function deleteLike(element) {
     element.classList.remove('card__like-button_is-active');
