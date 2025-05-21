@@ -8,73 +8,51 @@
  * - Основной CSS файл
  */
 
-import {addLike, deleteLike} from './components/card.js';
-import {openPopup, closePopup} from './components/modal.js';
-import initialCards from './components/cards.js';
+// 1. Импорты
+import {createCard, deleteCard, handleLikeButtonClick} from './components/card.js';
+import {openPopup, closePopup, handleOverlayClick} from './components/modal.js';
 import './pages/index.css';
+import initialCards from './components/cards.js';
 
-
-/**
- * Утилиты DOM: сокращения для document.querySelector и document.querySelectorAll
- */
+// 2. Утилиты DOM: сокращения для document.querySelector и document.querySelectorAll
 export const $ = document.querySelector.bind(document);
 export const $$ = document.querySelectorAll.bind(document);
 
-
-// DOM-элементы
-
-//  Шаблон карточки
-
-const cardTemplate = $('#card-template').content;
+// 3. DOM-элементы и переменные
 
 // Список карточек
-
 const placesCardList = $('.places__list');
 
 // Кнопка открытия попапа редактирования профиля
-
 const popupEditButton = $('.profile__edit-button');
 
 // Кнопка открытия попапа добавления карточки
-
 const popupAddCardButton = $('.profile__add-button');
 
 // Кнопки закрытия попапов
-
 const popupCloseButtons = $$('.popup__close');
 
+// Заголовок профиля
+let profileTitle = $('.profile__title');
+
+// Описание профиля
+let profileDescription = $('.profile__description');
 
 // Попапы
-
-// Попап редактирования профиля
-
+const popups = document.querySelectorAll('.popup');
 const editProfilePopup = $('.popup_type_edit');
-
-// Попап добавления карточки
-
 const addCardPopup = $('.popup_type_new-card');
-
-// Попап с большой картинкой карточки
-
 const popupCardImage = $('.popup_type_image');
 
-
 // Формы
-
 // Форма редактирования профиля
 const formEditProfile = document.forms['edit-profile'];
 
-/**
- * Текстовое поле с именем пользователя формы редактирования профиля
- * @type {HTMLInputElement}
- */
-let profileNameInput =  formEditProfile.elements['name'];
+// input с именем пользователя формы редактирования профиля
+const profileNameInput =  formEditProfile.elements['profile-name'];
 
-/**
- * Текстовое поле с профессией пользователя формы редактирования профиля
- * @type {HTMLInputElement}
- */
-let profileDescriptionInput =  formEditProfile.elements['description'];
+// input с профессией пользователя формы редактирования профиля
+const profileDescriptionInput =  formEditProfile.elements['description'];
 
 // Форма добавления карточки
 const formAddCard = document.forms['new-place'];
@@ -85,18 +63,7 @@ const placeNameInput = formAddCard.elements['place-name'];
 // Текстовое поле со ссылкой на картинку формы добавления карточки
 const placeLinkInput = formAddCard.elements['link'];
 
-
-/**
- * Заголовок профиля
- * @type {*|jQuery|HTMLElement}
- */
-let profileTitle = $('.profile__title');
-
-// Описание профиля
-let profileDescription = $('.profile__description');
-
-
-// Функции обработчики
+// 4. Функции
 
 /**
  * Обработчик кнопки редактирования профиля.
@@ -112,11 +79,10 @@ function handleEditButtonClick() {
     openPopup(editProfilePopup);
 }
 
-popupEditButton.addEventListener('click', handleEditButtonClick);
-
 /**
  * Обработчик отправки формы редактирования профиля.
  * Обновляет содержимое профиля и закрывает попап.
+ * @param {Event} e - Объект события отправки формы.
  */
 function handleEditProfileSubmit (e) {
     e.preventDefault();
@@ -125,17 +91,10 @@ function handleEditProfileSubmit (e) {
     closePopup(editProfilePopup);
 }
 
-formEditProfile.addEventListener('submit', handleEditProfileSubmit);
-
-
-// Обработчик кнопки открытия попапа добавления карточки
-popupAddCardButton.addEventListener('click', () => {
-    openPopup(addCardPopup);
-})
-
 /**
  * Обработчик отправки формы добавления карточки.
  * Создаёт и добавляет карточку в начало списка.
+ * @param {Event} e - Объект события отправки формы.
  */
 function handleAddCardSubmit(e) {
     e.preventDefault();
@@ -143,78 +102,20 @@ function handleAddCardSubmit(e) {
         name: placeNameInput.value,
         link: placeLinkInput.value
     }
-    placesCardList.prepend(createCard(cardData, deleteCard, addLike, deleteLike, handleCardImageClick));
+
+    placesCardList.prepend(createCard(cardData, deleteCard, handleCardImageClick, handleLikeButtonClick));
+    formAddCard.reset();
     closePopup(addCardPopup);
 }
 
-formAddCard.addEventListener('submit', handleAddCardSubmit);
-
-
-// Закрытие попапов по кнопке закрытия
-popupCloseButtons.forEach((button) => {
+/**
+ * Обработчик клика на кнопку закрытия.
+ * @param {HTMLElement} button - Кнопка закрытия.
+ */
+function handleCardCloseButtonClick(button) {
     button.addEventListener('click', () => {
         closePopup(button.closest('.popup'));
     })
-})
-
-// Функции
-
-/**
- * Создаёт DOM-элемент карточки на основе шаблона и переданных данных.
- * @param {Object} cardData - Данные карточки.
- * @param {string} cardData.name - Заголовок карточки.
- * @param {string} cardData.link - Ссылка на изображение.
- * @param {Function} deleteFunction - Функция удаления карточки.
- * @param {Function} addLike - Функция добавления лайка.
- * @param {Function} deleteLike - Функция удаления лайка.
- * @param {Function} handleCardImageClick - Обработчик клика по изображению карточки.
- * @returns {HTMLElement} Готовый элемент карточки.
- */
-function createCard(cardData, deleteFunction, addLike, deleteLike, handleCardImageClick) {
-
-    // Шаблон карточки
-    const cardItem = cardTemplate.querySelector('.card').cloneNode(true);
-
-    // Кнопка удаления карточки
-    const deleteButton = cardItem.querySelector('.card__delete-button');
-
-    // Кнопка лайка
-    const likeButton = cardItem.querySelector('.card__like-button');
-
-    // Картинка карточки
-    const cardImage = cardItem.querySelector('.card__image');
-
-    // Слушатель кнопки удаления карточки
-    deleteButton.addEventListener('click', () => {
-        deleteFunction(cardItem);
-    });
-
-    // Слушатель кнопки лайка карточки
-    likeButton.addEventListener('click', () => {
-        if (likeButton.classList.contains('card__like-button_is-active')) {
-            deleteLike(likeButton);
-        } else {
-            addLike(likeButton);
-        }
-    });
-
-    // Слушатель клика на картинку карточки.
-    // Вызывает обработчик клика, который показывает попап с большой картинкой
-    cardImage.addEventListener('click', () => {
-        handleCardImageClick(cardItem);
-    });
-
-    // Название карточки
-    cardItem.querySelector('.card__title').textContent = cardData.name;
-
-    // Заполнение атрибутов картинки
-    Object.assign(cardImage, {
-        src: cardData.link,
-        alt: cardData.name,
-    })
-
-    // Возвращает заполненную карточку
-    return cardItem;
 }
 
 /**
@@ -224,7 +125,6 @@ function createCard(cardData, deleteFunction, addLike, deleteLike, handleCardIma
  * @param {HTMLElement} card - Элемент карточки.
  */
 function handleCardImageClick(card) {
-
     // Картинка карточки
     const cardImage = card.querySelector('.card__image');
 
@@ -248,21 +148,29 @@ function handleCardImageClick(card) {
     openPopup(popupCardImage);
 }
 
-/**
- * Удаляет карточку из DOM.
- * @param {HTMLElement} element - Карточка.
- */
-function deleteCard(element) {
-    element.remove();
-}
 
+
+// 5. Слушатели событий
+popupEditButton.addEventListener('click', handleEditButtonClick);
+formEditProfile.addEventListener('submit', handleEditProfileSubmit);
+formAddCard.addEventListener('submit', handleAddCardSubmit);
+popupAddCardButton.addEventListener('click', () => {
+    openPopup(addCardPopup);
+});
+
+// Вешает обработчик клика на кнопку закрытия
+popupCloseButtons.forEach(handleCardCloseButtonClick);
+
+// Вешает обработчик клика на оверлэй
+popups.forEach(handleOverlayClick);
+
+// 6. Инициализация
 /**
  * Инициализация начальных карточек.
  * Перебирает массив с данными карточек,
  * передаёт данные карточек в функцию создания карточки
  */
 initialCards.forEach((item) => {
-
-// Добавляет на страницу список заполненных карточек
-    placesCardList.append(createCard(item, deleteCard, addLike, deleteLike, handleCardImageClick));
-})
+    // Добавляет на страницу список заполненных карточек
+    placesCardList.append(createCard(item, deleteCard, handleCardImageClick, handleLikeButtonClick));
+});

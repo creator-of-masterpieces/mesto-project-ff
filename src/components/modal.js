@@ -1,22 +1,4 @@
 /**
- * Сокращение для document.querySelector.
- * @type {function(string): Element|null}
- */
-const $ = document.querySelector.bind(document);
-
-/**
-* Сокращение для document.querySelectorAll.
-* @type {function(string): NodeListOf<Element>}
-*/
-const $$ = document.querySelectorAll.bind(document);
-
-/**
- * NodeList всех элементов с классом "popup".
- * @type {NodeListOf<Element>}
- */
-const popups = $$('.popup');
-
-/**
  * Открывает попап.
  * Добавляет элементу класс "popup_is-opened" для отображения.
  * Добавляет обработчик события нажатия клавиши Escape для закрытия попапа.
@@ -45,9 +27,9 @@ function closePopup(element) {
  *
  * @param {KeyboardEvent} e - Объект события клавиатуры.
  */
-function handleEscape (e) {
+function handleEscape(e) {
     if (e.key === 'Escape') {
-        const openedPopup = $('.popup_is-opened');
+        const openedPopup = document.querySelector('.popup_is-opened');
         closePopup(openedPopup);
     }
 }
@@ -55,13 +37,14 @@ function handleEscape (e) {
 /**
  * Добавляет обработчик закрытия попапа при клике на оверлей (фон попапа).
  * Если клик происходит по самому оверлею, попап закрывается.
+ * @param {HTMLElement} popup - DOM-элемент попапа.
  */
-popups.forEach((popup) => {
+function handleOverlayClick(popup) {
     popup.addEventListener('click', (e) => {
-        if (e.target === popup) {
+        if (e.target === e.currentTarget) {
             closePopup(popup);
         }
     })
-})
+}
 
-export {openPopup, closePopup};
+export {openPopup, closePopup, handleOverlayClick};
