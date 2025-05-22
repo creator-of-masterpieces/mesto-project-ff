@@ -10,7 +10,7 @@
 
 // 1. Импорты
 import {createCard, deleteCard, handleLikeButtonClick} from './components/card.js';
-import {openPopup, closePopup, handleOverlayClick} from './components/modal.js';
+import {openPopup, closePopup, addOverlayClickHandler} from './components/modal.js';
 import './pages/index.css';
 import initialCards from './components/cards.js';
 
@@ -33,10 +33,10 @@ const popupAddCardButton = $('.profile__add-button');
 const popupCloseButtons = $$('.popup__close');
 
 // Заголовок профиля
-let profileTitle = $('.profile__title');
+const profileTitle = $('.profile__title');
 
 // Описание профиля
-let profileDescription = $('.profile__description');
+const profileDescription = $('.profile__description');
 
 // Попапы
 const popups = document.querySelectorAll('.popup');
@@ -162,7 +162,7 @@ popupAddCardButton.addEventListener('click', () => {
 popupCloseButtons.forEach(handleCardCloseButtonClick);
 
 // Вешает обработчик клика на оверлэй
-popups.forEach(handleOverlayClick);
+popups.forEach(addOverlayClickHandler);
 
 // 6. Инициализация
 /**

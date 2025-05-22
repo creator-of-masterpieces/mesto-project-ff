@@ -39,7 +39,7 @@ function handleEscape(e) {
  * Если клик происходит по самому оверлею, попап закрывается.
  * @param {HTMLElement} popup - DOM-элемент попапа.
  */
-function handleOverlayClick(popup) {
+function addOverlayClickHandler(popup) {
     popup.addEventListener('click', (e) => {
         if (e.target === e.currentTarget) {
             closePopup(popup);
@@ -47,4 +47,4 @@ function handleOverlayClick(popup) {
     })
 }
 
-export {openPopup, closePopup, handleOverlayClick};
+export {openPopup, closePopup, addOverlayClickHandler};
