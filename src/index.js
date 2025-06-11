@@ -13,6 +13,7 @@ import {createCard, deleteCard, handleLikeButtonClick} from './components/card.j
 import {openPopup, closePopup, addOverlayClickHandler} from './components/modal.js';
 import './pages/index.css';
 import initialCards from './components/cards.js';
+import {getProfileData} from "./components/api";
 
 // 2. Утилиты DOM: сокращения для document.querySelector и document.querySelectorAll
 export const $ = document.querySelector.bind(document);

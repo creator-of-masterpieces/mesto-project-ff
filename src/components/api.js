@@ -7,19 +7,22 @@ const config = {
 }
 
 // Функция загрузки данных профиля
-const getProfileData =  async ()=> {
-    try {
-        const res = await fetch (`${config.baseURL}`);
-        // Проверка, если сервер вернул ошибку
-        if(!res.ok) {
-            throw new Error(`Ошибка: $(res.status)`);
+function getProfileData (){
+    fetch(`${config.baseURL}/users/me`, {
+        headers:{
+            authorization: config.headers.authorization,
+            'content-type': 'application/json'
         }
-        // Распаковка ответа сервера
-        const data = await res.json();
-        console.log(data);
-    }
-    // Обработка ошибок, если что-то не так в try
-    catch (error) {
-        console.error('Что-то пошло не так:', error);
-    }
+    })
+        .then((res) => {
+            if (!res.ok) {
+                return Promise.reject(`Ошибка ${res.status}`);
+            }
+            return res.json();
+        })
+        .then((data) => {
+            console.log(data);
+        })
 }
+
+export {getProfileData};
