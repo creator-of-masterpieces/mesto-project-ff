@@ -119,7 +119,7 @@ function handleEditProfileSubmit(e) {
 // Обработчик ошибки обмена данных с сервером
 function handleApiError(error, userMessage = 'Что-то пошло не так') {
     console.log(`${userMessage} ${error}`);
-    alert(`${userMessage}\n\n(Подробности в консоли)`);
+    alert(`${userMessage}`);
 }
 
 /**
