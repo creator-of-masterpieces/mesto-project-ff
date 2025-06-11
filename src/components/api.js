@@ -6,9 +6,10 @@ const config = {
     }
 }
 
-// Функция загрузки данных профиля
-function getProfileData (){
-    fetch(`${config.baseURL}/users/me`, {
+//  Загрузка данных профиля с сервера
+
+const getProfileData = () => {
+    return fetch(`${config.baseURL}/users/me`, {
         headers:{
             authorization: config.headers.authorization,
             'content-type': 'application/json'
@@ -20,9 +21,25 @@ function getProfileData (){
             }
             return res.json();
         })
-        .then((data) => {
-            console.log(data);
+}
+
+// Обновление данных профиля на сервере
+
+const sendProfileData = (profileData) => {
+    return fetch(`${config.baseURL}/users/me`, {
+        method: 'PATCH',
+        headers: {
+            authorization: config.headers.authorization,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(profileData)
+    })
+        .then((res) => {
+            if (!res.ok) {
+                return Promise.reject(`Ошибка ${res.status}`);
+            }
+            return res.json();
         })
 }
 
-export {getProfileData};
+export {getProfileData, sendProfileData};

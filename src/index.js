@@ -13,7 +13,7 @@ import {createCard, deleteCard, handleLikeButtonClick} from './components/card.j
 import {openPopup, closePopup, addOverlayClickHandler} from './components/modal.js';
 import './pages/index.css';
 import initialCards from './components/cards.js';
-import {getProfileData} from "./components/api";
+import {getProfileData, sendProfileData} from "./components/api";
 
 // 2. Утилиты DOM: сокращения для document.querySelector и document.querySelectorAll
 export const $ = document.querySelector.bind(document);
@@ -50,10 +50,10 @@ const popupCardImage = $('.popup_type_image');
 const formEditProfile = document.forms['edit-profile'];
 
 // input с именем пользователя формы редактирования профиля
-const profileNameInput =  formEditProfile.elements['profile-name'];
+const profileNameInput = formEditProfile.elements['profile-name'];
 
 // input с профессией пользователя формы редактирования профиля
-const profileDescriptionInput =  formEditProfile.elements['description'];
+const profileDescriptionInput = formEditProfile.elements['description'];
 
 // Форма добавления карточки
 const formAddCard = document.forms['new-place'];
@@ -64,7 +64,21 @@ const placeNameInput = formAddCard.elements['place-name'];
 // Текстовое поле со ссылкой на картинку формы добавления карточки
 const placeLinkInput = formAddCard.elements['link'];
 
-// 4. Функции
+// Функции
+
+// Принимает объект с данными профиля пользователя.
+// Устанавливает имя и описание профиля
+function setProfileData() {
+    getProfileData()
+        .then((data) => {
+            console.log(data);
+            profileTitle.textContent = data.name;
+            profileDescription.textContent = data.about;
+        })
+        .catch((error) => {
+            handleApiError(error, 'Не удалось загрузить профиль пользователя');
+        })
+}
 
 /**
  * Обработчик кнопки редактирования профиля.
@@ -85,11 +99,27 @@ function handleEditButtonClick() {
  * Обновляет содержимое профиля и закрывает попап.
  * @param {Event} e - Объект события отправки формы.
  */
-function handleEditProfileSubmit (e) {
+function handleEditProfileSubmit(e) {
     e.preventDefault();
-    profileTitle.textContent = profileNameInput.value;
-    profileDescription.textContent = profileDescriptionInput.value;
+    const profileData = {
+        name: profileNameInput.value,
+        about: profileDescriptionInput.value
+    }
+    sendProfileData(profileData)
+        .then((profileData) => {
+            profileTitle.textContent = profileData.name;
+            profileDescription.textContent = profileData.about;
+        })
+        .catch((error) => {
+            handleApiError(error, 'Не удалось обновить профиль');
+        })
     closePopup(editProfilePopup);
+}
+
+// Обработчик ошибки обмена данных с сервером
+function handleApiError(error, userMessage = 'Что-то пошло не так') {
+    console.log(`${userMessage} ${error}`);
+    alert(`${userMessage}\n\n(Подробности в консоли)`);
 }
 
 /**
@@ -150,7 +180,6 @@ function handleCardImageClick(card) {
 }
 
 
-
 // 5. Слушатели событий
 popupEditButton.addEventListener('click', handleEditButtonClick);
 formEditProfile.addEventListener('submit', handleEditProfileSubmit);
@@ -175,3 +204,10 @@ initialCards.forEach((item) => {
     // Добавляет на страницу список заполненных карточек
     placesCardList.append(createCard(item, deleteCard, handleCardImageClick, handleLikeButtonClick));
 });
+
+// Получает данные профиля с сервера и устанавливает их
+setProfileData();
+
+
+
+
