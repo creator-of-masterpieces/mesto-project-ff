@@ -1,3 +1,14 @@
+/**
+ * Конфигурация для API-запросов.
+ * Используется в проекте Mesto для обращения к серверу Яндекс Практикума.
+ *
+ * @constant
+ * @type {Object}
+ * @property {string} baseURL - Базовый URL API. Все запросы отправляются по этому адресу.
+ * @property {Object} headers - Заголовки, отправляемые с каждым запросом.
+ * @property {string} headers.authorization - Токен авторизации для доступа к API.
+ * @property {string} headers['content-type'] - Тип контента, указывающий, что мы отправляем JSON.
+ */
 const config = {
     baseURL:'https://nomoreparties.co/v1/wff-cohort-40',
     headers:{
