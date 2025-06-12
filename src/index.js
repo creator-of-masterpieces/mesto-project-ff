@@ -12,8 +12,7 @@
 import {createCard, deleteCard, handleLikeButtonClick} from './components/card.js';
 import {openPopup, closePopup, addOverlayClickHandler} from './components/modal.js';
 import './pages/index.css';
-import initialCards from './components/cards.js';
-import {getProfileData, sendProfileData} from "./components/api";
+import {getProfileData, sendProfileData, getCards} from "./components/api";
 
 // 2. Утилиты DOM: сокращения для document.querySelector и document.querySelectorAll
 export const $ = document.querySelector.bind(document);
@@ -71,7 +70,6 @@ const placeLinkInput = formAddCard.elements['link'];
 function setProfileData() {
     getProfileData()
         .then((data) => {
-            console.log(data);
             profileTitle.textContent = data.name;
             profileDescription.textContent = data.about;
         })
@@ -200,13 +198,19 @@ popups.forEach(addOverlayClickHandler);
  * Перебирает массив с данными карточек,
  * передаёт данные карточек в функцию создания карточки
  */
-initialCards.forEach((item) => {
-    // Добавляет на страницу список заполненных карточек
-    placesCardList.append(createCard(item, deleteCard, handleCardImageClick, handleLikeButtonClick));
-});
+getCards()
+    .then((cards) => {
+        cards.forEach((item) => {
+            // Добавляет на страницу список заполненных карточек
+            placesCardList.append(createCard(item, deleteCard, handleCardImageClick, handleLikeButtonClick));
+        });
+    })
 
 // Получает данные профиля с сервера и устанавливает их
 setProfileData();
+
+// Получает список карточек с сервера
+getCards();
 
 
 

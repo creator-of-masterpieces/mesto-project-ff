@@ -21,7 +21,7 @@ const config = {
 
 const getProfileData = () => {
     return fetch(`${config.baseURL}/users/me`, {
-        headers:{
+        headers: {
             authorization: config.headers.authorization,
             'content-type': 'application/json'
         }
@@ -34,7 +34,7 @@ const getProfileData = () => {
         })
 }
 
-// Обновление данных профиля на сервере
+// Отправка обновленных данных профиля на сервер
 
 const sendProfileData = (profileData) => {
     return fetch(`${config.baseURL}/users/me`, {
@@ -53,4 +53,20 @@ const sendProfileData = (profileData) => {
         })
 }
 
-export {getProfileData, sendProfileData};
+// Загрузка карточек с сервера
+
+const getCards = () => {
+    return fetch(`${config.baseURL}/cards`,{
+        headers: {
+        authorization: config.headers.authorization,
+        'content-type': 'application/json'
+    }})
+        .then((res) => {
+            if(!res.ok) {
+                console.log(res.status);
+            }
+            return res.json();
+        })
+}
+
+export {getProfileData, sendProfileData, getCards};
