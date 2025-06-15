@@ -12,7 +12,7 @@
 import {createCard, deleteCard, handleLikeButtonClick} from './components/card.js';
 import {openPopup, closePopup, addOverlayClickHandler} from './components/modal.js';
 import './pages/index.css';
-import {getProfileData, sendProfileData, getCards} from "./components/api";
+import {getProfileData, sendProfileData, getCards, sendCard, deleteCardRequest} from "./components/api";
 
 // 2. Утилиты DOM: сокращения для document.querySelector и document.querySelectorAll
 export const $ = document.querySelector.bind(document);
@@ -38,11 +38,20 @@ const profileTitle = $('.profile__title');
 // Описание профиля
 const profileDescription = $('.profile__description');
 
-// Попапы
+// Попапы и элементы попапов
 const popups = document.querySelectorAll('.popup');
 const editProfilePopup = $('.popup_type_edit');
 const addCardPopup = $('.popup_type_new-card');
 const popupCardImage = $('.popup_type_image');
+const popupDeleteCard = $('.popup_type_delete-card');
+const buttonConfirmPopupDeleteCard = popupDeleteCard.querySelector('.popup__button');
+
+// Попап подтверждения удаления карточки
+const deleteCardPopup = document.querySelector('.popup_type_delete-card');
+
+// Данные удаляемой карточки
+let doomedCardID = null;
+let doomedCardElement = null;
 
 // Формы
 // Форма редактирования профиля
@@ -79,7 +88,7 @@ function setProfileData() {
 }
 
 /**
- * Обработчик кнопки редактирования профиля.
+ * Обработчик клика кнопки редактирования профиля.
  *
  * При клике:
  * - Подставляет текущие значения имени и описания профиля
@@ -127,14 +136,24 @@ function handleApiError(error, userMessage = 'Что-то пошло не так
  */
 function handleAddCardSubmit(e) {
     e.preventDefault();
-    const cardData = {
+
+    // Собирает данные пользователя
+    const cardDraft = {
         name: placeNameInput.value,
         link: placeLinkInput.value
     }
 
-    placesCardList.prepend(createCard(cardData, deleteCard, handleCardImageClick, handleLikeButtonClick));
-    formAddCard.reset();
-    closePopup(addCardPopup);
+    // Отправляет данные на сервер
+    sendCard(cardDraft)
+        .then((cardFromServer) => {
+            const newCard = createCard(cardFromServer, prepareDelete, handleCardImageClick, handleLikeButtonClick);
+            placesCardList.prepend(newCard);
+            formAddCard.reset();
+            closePopup(addCardPopup);
+        })
+        .catch((error) => {
+            handleApiError(error, 'Не удалось добавить карточку');
+        })
 }
 
 /**
@@ -146,6 +165,29 @@ function handleCardCloseButtonClick(button) {
         closePopup(button.closest('.popup'));
     })
 }
+
+// Обработчик клика на иконку удаления карточки (внутри карточки)
+function prepareDelete(id, card) {
+    doomedCardID = id;
+    doomedCardElement = card;
+    openPopup(deleteCardPopup);
+}
+
+
+// Обработчик клика на кнопку подтверждения попапа удаления карточки
+buttonConfirmPopupDeleteCard.addEventListener('click', () => {
+    deleteCardRequest(doomedCardID)
+        .then(()=>{
+            deleteCard(doomedCardElement);
+        })
+        .catch((err) => {
+            handleApiError(err, 'Ошибка при удалении карточки');
+        })
+        .finally(() => {
+            closePopup(popupDeleteCard);
+        })
+})
+
 
 /**
  * Обработчик клика по карточке.
@@ -202,15 +244,12 @@ getCards()
     .then((cards) => {
         cards.forEach((item) => {
             // Добавляет на страницу список заполненных карточек
-            placesCardList.append(createCard(item, deleteCard, handleCardImageClick, handleLikeButtonClick));
+            placesCardList.append(createCard(item, prepareDelete, handleCardImageClick, handleLikeButtonClick));
         });
     })
 
 // Получает данные профиля с сервера и устанавливает их
 setProfileData();
-
-// Получает список карточек с сервера
-getCards();
 
 
 

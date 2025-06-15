@@ -1,19 +1,25 @@
+
 //  Шаблон карточки
 const cardTemplate = document.querySelector('#card-template').content;
 
+// ID залогиненого пользователя
+const userID = 'b0fa12586f9c92b90c172212';
+
 /**
- * Создаёт DOM-элемент карточки на основе шаблона и переданных данных.
- * @param {Object} cardData - Данные карточки.
+ * Создаёт и возвращает DOM-элемент карточки на основе шаблона и переданных данных.
+ * @param {Object} cardData - данные карточки от сервера.
  * @param {string} cardData.name - Заголовок карточки.
  * @param {string} cardData.link - Ссылка на изображение.
  * @param {Function} deleteFunction - Функция удаления карточки.
- * @param {Function} handleCardImageClick - Обработчик клика по изображению карточки.
- * @param {Function} handleLikeButtonClick - Обработчик клика по кнопке лайка.
+ * @param {Function} handleCardImageClick - Открыть попап с большой картинкой.
+ * @param {Function} handleLikeButtonClick - Поставить/убрать лайк.
  * @returns {HTMLElement} Готовый элемент карточки.
  */
 function createCard(cardData, deleteFunction, handleCardImageClick, handleLikeButtonClick) {
-    // Шаблон карточки
+    // Клонирование шаблона карточки
     const cardItem = cardTemplate.querySelector('.card').cloneNode(true);
+
+    //Получение нужных элементов карточки
 
     // Кнопка удаления карточки
     const deleteButton = cardItem.querySelector('.card__delete-button');
@@ -24,12 +30,14 @@ function createCard(cardData, deleteFunction, handleCardImageClick, handleLikeBu
     // Картинка карточки
     const cardImage = cardItem.querySelector('.card__image');
 
-    // Слушатель кнопки удаления карточки
+    // Слушатель клика на кнопку удаления карточки.
+    // Создает замыкание, благодаря чему при клике на кнопку удаления карточки удаляется именно карточка,
+    // по которой был сделан клик
     deleteButton.addEventListener('click', () => {
-        deleteFunction(cardItem);
+        deleteFunction(cardData._id, cardItem);
     });
 
-    // Слушатель кнопки лайка карточки
+    // Слушатель клика на кнопку лайка карточки
     likeButton.addEventListener('click', (e) => {
         handleLikeButtonClick(e.currentTarget);
     });
@@ -48,6 +56,10 @@ function createCard(cardData, deleteFunction, handleCardImageClick, handleLikeBu
         src: cardData.link,
         alt: cardData.name,
     })
+
+    if(cardData.owner._id !== userID) {
+        deleteButton.style.display = 'none';
+    }
 
     // Возвращает заполненную карточку
     return cardItem;
@@ -70,4 +82,5 @@ function deleteCard(element) {
     element.remove();
 }
 
+// Экспорт функций
 export {deleteCard, createCard, handleLikeButtonClick};
