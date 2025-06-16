@@ -6,7 +6,8 @@
             name="viewport"
             content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
     />
-    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+    <meta http-equiv="X-UA-Compatible"
+          content="ie=edge"/>
     <title>Mesto</title>
 </head>
 <body class="page">
@@ -27,11 +28,13 @@
                   background-image: url('<%= require('./images/avatar.jpg') %>');">
             </div>
             <div class="profile__info">
-                <h1 class="profile__title">Жак-Ив Кусто</h1>
-                <button class="profile__edit-button" type="button"></button>
-                <p class="profile__description">Исследователь океана</p>
+                <h1 class="profile__title"></h1>
+                <button class="profile__edit-button"
+                        type="button"></button>
+                <p class="profile__description"></p>
             </div>
-            <button class="profile__add-button" type="button"></button>
+            <button class="profile__add-button"
+                    type="button"></button>
         </section>
         <section class="places page__section">
             <ul class="places__list"></ul>
@@ -43,10 +46,12 @@
 
     <div class="popup popup_is-animated popup_type_edit">
         <div class="popup__content">
-            <button type="button" class="popup__close"></button>
+            <button type="button"
+                    class="popup__close"></button>
             <h3 class="popup__title">Редактировать профиль</h3>
 
-            <form class="popup__form" name="edit-profile">
+            <form class="popup__form"
+                  name="edit-profile">
                 <input
                         type="text"
                         name="profile-name"
@@ -62,7 +67,8 @@
                         placeholder="Занятие"
                         required
                 />
-                <button type="submit" class="button popup__button">
+                <button type="submit"
+                        class="button popup__button">
                     Сохранить
                 </button>
             </form>
@@ -71,9 +77,11 @@
 
     <div class="popup popup_is-animated popup_type_new-card">
         <div class="popup__content">
-            <button type="button" class="popup__close"></button>
+            <button type="button"
+                    class="popup__close"></button>
             <h3 class="popup__title">Новое место</h3>
-            <form class="popup__form" name="new-place">
+            <form class="popup__form"
+                  name="new-place">
                 <input
                         type="text"
                         name="place-name"
@@ -88,17 +96,29 @@
                         placeholder="Ссылка на картинку"
                         required
                 />
-                <button type="submit" class="button popup__button">
+                <button type="submit"
+                        class="button popup__button">
                     Сохранить
                 </button>
             </form>
         </div>
     </div>
 
+    <div class="popup popup_type_delete-card">
+        <div class="popup__content">
+            <h3 class="popup__title">Вы уверены?</h3>
+            <button class="button popup__button">Да</button>
+            <button class="popup__close"></button>
+        </div>
+    </div>
+
     <div class="popup popup_is-animated popup_type_image">
         <div class="popup__content popup__content_content_image">
-            <button type="button" class="popup__close"></button>
-            <img src="" alt="" class="popup__image"/>
+            <button type="button"
+                    class="popup__close"></button>
+            <img src=""
+                 alt=""
+                 class="popup__image"/>
             <p class="popup__caption"></p>
         </div>
     </div>
@@ -108,11 +128,20 @@
 <template id="card-template">
 
     <li class="places__item card">
-        <img class="card__image" src="" alt=""/>
-        <button type="button" class="card__delete-button"></button>
+        <img class="card__image"
+             src=""
+             alt=""
+             width="282px"
+             height="282px"/>
+        <button type="button"
+                class="card__delete-button"></button>
         <div class="card__description">
             <h2 class="card__title"></h2>
-            <button type="button" class="card__like-button"></button>
+            <div class="card__likes">
+                <button type="button"
+                        class="card__like-button"></button>
+                <span class="card__like-count">1</span>
+            </div>
         </div>
     </li>
 </template>

@@ -12,7 +12,7 @@
 import {createCard, deleteCard, handleLikeButtonClick} from './components/card.js';
 import {openPopup, closePopup, addOverlayClickHandler} from './components/modal.js';
 import './pages/index.css';
-import initialCards from './components/cards.js';
+import {getProfileData, sendProfileData, getCards, sendCard, deleteCardRequest} from "./components/api";
 
 // 2. Утилиты DOM: сокращения для document.querySelector и document.querySelectorAll
 export const $ = document.querySelector.bind(document);
@@ -38,21 +38,30 @@ const profileTitle = $('.profile__title');
 // Описание профиля
 const profileDescription = $('.profile__description');
 
-// Попапы
+// Попапы и элементы попапов
 const popups = document.querySelectorAll('.popup');
 const editProfilePopup = $('.popup_type_edit');
 const addCardPopup = $('.popup_type_new-card');
 const popupCardImage = $('.popup_type_image');
+const popupDeleteCard = $('.popup_type_delete-card');
+const buttonConfirmPopupDeleteCard = popupDeleteCard.querySelector('.popup__button');
+
+// Попап подтверждения удаления карточки
+const deleteCardPopup = document.querySelector('.popup_type_delete-card');
+
+// Данные удаляемой карточки
+let doomedCardID = null;
+let doomedCardElement = null;
 
 // Формы
 // Форма редактирования профиля
 const formEditProfile = document.forms['edit-profile'];
 
 // input с именем пользователя формы редактирования профиля
-const profileNameInput =  formEditProfile.elements['profile-name'];
+const profileNameInput = formEditProfile.elements['profile-name'];
 
 // input с профессией пользователя формы редактирования профиля
-const profileDescriptionInput =  formEditProfile.elements['description'];
+const profileDescriptionInput = formEditProfile.elements['description'];
 
 // Форма добавления карточки
 const formAddCard = document.forms['new-place'];
@@ -63,10 +72,23 @@ const placeNameInput = formAddCard.elements['place-name'];
 // Текстовое поле со ссылкой на картинку формы добавления карточки
 const placeLinkInput = formAddCard.elements['link'];
 
-// 4. Функции
+// Функции
+
+// Принимает объект с данными профиля пользователя.
+// Устанавливает имя и описание профиля
+function setProfileData() {
+    getProfileData()
+        .then((data) => {
+            profileTitle.textContent = data.name;
+            profileDescription.textContent = data.about;
+        })
+        .catch((error) => {
+            handleApiError(error, 'Не удалось загрузить профиль пользователя');
+        })
+}
 
 /**
- * Обработчик кнопки редактирования профиля.
+ * Обработчик клика кнопки редактирования профиля.
  *
  * При клике:
  * - Подставляет текущие значения имени и описания профиля
@@ -84,11 +106,27 @@ function handleEditButtonClick() {
  * Обновляет содержимое профиля и закрывает попап.
  * @param {Event} e - Объект события отправки формы.
  */
-function handleEditProfileSubmit (e) {
+function handleEditProfileSubmit(e) {
     e.preventDefault();
-    profileTitle.textContent = profileNameInput.value;
-    profileDescription.textContent = profileDescriptionInput.value;
+    const profileData = {
+        name: profileNameInput.value,
+        about: profileDescriptionInput.value
+    }
+    sendProfileData(profileData)
+        .then((profileData) => {
+            profileTitle.textContent = profileData.name;
+            profileDescription.textContent = profileData.about;
+        })
+        .catch((error) => {
+            handleApiError(error, 'Не удалось обновить профиль');
+        })
     closePopup(editProfilePopup);
+}
+
+// Обработчик ошибки обмена данных с сервером
+function handleApiError(error, userMessage = 'Что-то пошло не так') {
+    console.log(`${userMessage} ${error}`);
+    alert(`${userMessage}`);
 }
 
 /**
@@ -98,14 +136,24 @@ function handleEditProfileSubmit (e) {
  */
 function handleAddCardSubmit(e) {
     e.preventDefault();
-    const cardData = {
+
+    // Собирает данные пользователя
+    const cardDraft = {
         name: placeNameInput.value,
         link: placeLinkInput.value
     }
 
-    placesCardList.prepend(createCard(cardData, deleteCard, handleCardImageClick, handleLikeButtonClick));
-    formAddCard.reset();
-    closePopup(addCardPopup);
+    // Отправляет данные на сервер
+    sendCard(cardDraft)
+        .then((cardFromServer) => {
+            const newCard = createCard(cardFromServer, prepareDelete, handleCardImageClick, handleLikeButtonClick);
+            placesCardList.prepend(newCard);
+            formAddCard.reset();
+            closePopup(addCardPopup);
+        })
+        .catch((error) => {
+            handleApiError(error, 'Не удалось добавить карточку');
+        })
 }
 
 /**
@@ -117,6 +165,29 @@ function handleCardCloseButtonClick(button) {
         closePopup(button.closest('.popup'));
     })
 }
+
+// Обработчик клика на иконку удаления карточки (внутри карточки)
+function prepareDelete(id, card) {
+    doomedCardID = id;
+    doomedCardElement = card;
+    openPopup(deleteCardPopup);
+}
+
+
+// Обработчик клика на кнопку подтверждения попапа удаления карточки
+buttonConfirmPopupDeleteCard.addEventListener('click', () => {
+    deleteCardRequest(doomedCardID)
+        .then(()=>{
+            deleteCard(doomedCardElement);
+        })
+        .catch((err) => {
+            handleApiError(err, 'Ошибка при удалении карточки');
+        })
+        .finally(() => {
+            closePopup(popupDeleteCard);
+        })
+})
+
 
 /**
  * Обработчик клика по карточке.
@@ -149,7 +220,6 @@ function handleCardImageClick(card) {
 }
 
 
-
 // 5. Слушатели событий
 popupEditButton.addEventListener('click', handleEditButtonClick);
 formEditProfile.addEventListener('submit', handleEditProfileSubmit);
@@ -170,7 +240,17 @@ popups.forEach(addOverlayClickHandler);
  * Перебирает массив с данными карточек,
  * передаёт данные карточек в функцию создания карточки
  */
-initialCards.forEach((item) => {
-    // Добавляет на страницу список заполненных карточек
-    placesCardList.append(createCard(item, deleteCard, handleCardImageClick, handleLikeButtonClick));
-});
+getCards()
+    .then((cards) => {
+        cards.forEach((item) => {
+            // Добавляет на страницу список заполненных карточек
+            placesCardList.append(createCard(item, prepareDelete, handleCardImageClick, handleLikeButtonClick));
+        });
+    })
+
+// Получает данные профиля с сервера и устанавливает их
+setProfileData();
+
+
+
+
