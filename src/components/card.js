@@ -50,9 +50,10 @@ function createCard(cardData, deleteFunction, handleCardImageClick, handleLikeBu
 
     // Слушатель клика на кнопку лайка карточки
     likeButton.addEventListener('click', (e) => {
+        const currentButton = likeButton;
         likeCardRequest(cardData._id)
             .then((updatedCard) => {
-                handleLikeButtonClick(e.currentTarget);
+                handleLikeButtonClick(currentButton);
                 likeCounter.textContent = updatedCard.likes.length;
             })
             .catch((err) => {
@@ -80,8 +81,6 @@ function createCard(cardData, deleteFunction, handleCardImageClick, handleLikeBu
     if(cardData.owner._id !== userID) {
         deleteButton.style.display = 'none';
     }
-    console.log(cardData);
-    console.log(likeCount);
 
     // Возвращает заполненную карточку
     return cardItem;
