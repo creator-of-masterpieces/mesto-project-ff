@@ -10,12 +10,13 @@ const userID = 'b0fa12586f9c92b90c172212';
  * @param {Object} cardData - данные карточки от сервера.
  * @param {string} cardData.name - Заголовок карточки.
  * @param {string} cardData.link - Ссылка на изображение.
+ * @param {string} currentUserId - идентификатор текущего пользователя.
  * @param {Function} deleteFunction - Функция удаления карточки.
  * @param {Function} handleCardImageClick - Открыть попап с большой картинкой.
  * @param {Function} handleLikeButtonClick - Поставить/убрать лайк.
  * @returns {HTMLElement} Готовый элемент карточки.
  */
-function createCard(cardData, deleteFunction, handleCardImageClick, handleLikeButtonClick) {
+function createCard(cardData,currentUserId, deleteFunction, handleCardImageClick, handleLikeButtonClick) {
     // Клонирование шаблона карточки
     const cardItem = cardTemplate.querySelector('.card').cloneNode(true);
 
@@ -41,7 +42,7 @@ function createCard(cardData, deleteFunction, handleCardImageClick, handleLikeBu
     const likeCount = cardData.likes.length;
 
     // Помечает кнопку активной, если текущий пользователь уже ставил лайк
-    if (cardData.likes.some((item) => item._id === userID)) {
+    if (cardData.likes.some((item) => item._id === currentUserId)) {
         likeButton.classList.add('card__like-button_is-active');
     }
 
@@ -88,7 +89,7 @@ function createCard(cardData, deleteFunction, handleCardImageClick, handleLikeBu
     })
 
     // Проверяет владельца карточки и скрывает кнопку удаления у чужих карточек
-    if(cardData.owner._id !== userID) {
+    if(cardData.owner._id !== currentUserId) {
         deleteButton.style.display = 'none';
     }
 

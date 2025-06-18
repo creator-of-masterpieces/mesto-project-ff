@@ -53,6 +53,9 @@ const deleteCardPopup = document.querySelector('.popup_type_delete-card');
 let doomedCardID = null;
 let doomedCardElement = null;
 
+// Идентификатор текущего пользователя
+let currentUserId;
+
 // Формы
 // Форма редактирования профиля
 const formEditProfile = document.forms['edit-profile'];
@@ -81,6 +84,7 @@ function setProfileData() {
         .then((data) => {
             profileTitle.textContent = data.name;
             profileDescription.textContent = data.about;
+            currentUserId = data._id;
         })
         .catch((error) => {
             handleApiError(error, 'Не удалось загрузить профиль пользователя');
@@ -146,7 +150,7 @@ function handleAddCardSubmit(e) {
     // Отправляет данные на сервер
     sendCard(cardDraft)
         .then((cardFromServer) => {
-            const newCard = createCard(cardFromServer, prepareDelete, handleCardImageClick, handleLikeButtonClick);
+            const newCard = createCard(cardFromServer, currentUserId, prepareDelete, handleCardImageClick, handleLikeButtonClick);
             placesCardList.prepend(newCard);
             formAddCard.reset();
             closePopup(addCardPopup);
@@ -244,7 +248,7 @@ getCards()
     .then((cards) => {
         cards.forEach((item) => {
             // Добавляет на страницу список заполненных карточек
-            placesCardList.append(createCard(item, prepareDelete, handleCardImageClick, handleLikeButtonClick));
+            placesCardList.append(createCard(item, currentUserId, prepareDelete, handleCardImageClick, handleLikeButtonClick));
         });
     })
 
