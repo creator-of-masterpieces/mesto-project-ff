@@ -1,4 +1,4 @@
-import {likeCardRequest} from './api.js';
+import {likeCardRequest, deleteLikeRequest} from './api.js';
 //  Шаблон карточки
 const cardTemplate = document.querySelector('#card-template').content;
 
@@ -49,9 +49,16 @@ function createCard(cardData, deleteFunction, handleCardImageClick, handleLikeBu
     });
 
     // Слушатель клика на кнопку лайка карточки
-    likeButton.addEventListener('click', (e) => {
+    likeButton.addEventListener('click', () => {
         const currentButton = likeButton;
-        likeCardRequest(cardData._id)
+        let request;
+        if(currentButton.classList.contains('.card__like-button_is-active')) {
+            request = deleteLikeRequest;
+        }
+        else {
+            request = likeCardRequest;
+        }
+        request(cardData._id)
             .then((updatedCard) => {
                 handleLikeButtonClick(currentButton);
                 likeCounter.textContent = updatedCard.likes.length;
@@ -59,7 +66,6 @@ function createCard(cardData, deleteFunction, handleCardImageClick, handleLikeBu
             .catch((err) => {
                 console.error(err);
             })
-
     });
 
     // Слушатель клика на картинку карточки.
