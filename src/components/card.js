@@ -2,9 +2,6 @@ import {likeCardRequest, deleteLikeRequest} from './api.js';
 //  Шаблон карточки
 const cardTemplate = document.querySelector('#card-template').content;
 
-// ID залогиненого пользователя
-const userID = 'b0fa12586f9c92b90c172212';
-
 /**
  * Создаёт и возвращает DOM-элемент карточки на основе шаблона и переданных данных.
  * @param {Object} cardData - данные карточки от сервера.
@@ -57,7 +54,7 @@ function createCard(cardData,currentUserId, deleteFunction, handleCardImageClick
     likeButton.addEventListener('click', () => {
         const currentButton = likeButton;
         let request;
-        if(currentButton.classList.contains('.card__like-button_is-active')) {
+        if(currentButton.classList.contains('card__like-button_is-active')) {
             request = deleteLikeRequest;
         }
         else {

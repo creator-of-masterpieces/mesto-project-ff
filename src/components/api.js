@@ -116,7 +116,7 @@ const likeCardRequest = (cardID) => {
 // Удаление лайка
 
 const deleteLikeRequest = (cardID) => {
-    return retch(`${config.BaseURL}/cards/${cardID}/likes`, {
+    return fetch(`${config.baseURL}/cards/${cardID}/likes`, {
         method: 'DELETE',
         headers: config.headers,
     })
