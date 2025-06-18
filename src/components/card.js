@@ -40,6 +40,10 @@ function createCard(cardData, deleteFunction, handleCardImageClick, handleLikeBu
     // Количество лайков полученное от сервера
     const likeCount = cardData.likes.length;
 
+    // Помечает кнопку активной, если текущий пользователь уже ставил лайк
+    if (cardData.likes.some((item) => item._id === userID)) {
+        likeButton.classList.add('card__like-button_is-active');
+    }
 
     // Слушатель клика на кнопку удаления карточки.
     // Создает замыкание, благодаря чему при клике на кнопку удаления карточки удаляется именно карточка,
