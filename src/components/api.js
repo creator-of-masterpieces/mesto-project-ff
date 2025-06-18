@@ -96,7 +96,21 @@ const deleteCardRequest = (idCard) => {
         .catch((error) => {
             return Promise.reject(`Ошибка при удалении карточки: ${error}`)
         })
-
 }
 
-export {getProfileData, sendProfileData, getCards, sendCard, deleteCardRequest};
+// Лайк карточки
+
+const likeCardRequest = (cardID) => {
+    return fetch(`${config.baseURL}/cards/likes/${cardID}`, {
+        method: 'PUT',
+        headers: config.headers,
+    })
+        .then((res) => {
+            if(!res.ok) {
+                return Promise.reject(`Ошибка ${res.status}`);
+            }
+            return res.json();
+        })
+}
+
+export {getProfileData, sendProfileData, getCards, sendCard, deleteCardRequest, likeCardRequest};
