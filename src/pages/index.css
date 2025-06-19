@@ -11,4 +11,6 @@
 @import url('../blocks/popup/_is-animated/popup_is-animated.css');
 @import url('../blocks/popup/_is-opened/popup_is-opened.css');
 @import url('../blocks/popup/__type/_delete-card/popup_type_delete-card.css');
+@import url('../blocks/popup/__type/_update-avatar/popup_type_update-avatar.css');
 @import url('../blocks/card/__likes/card__likes.css');
+
