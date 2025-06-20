@@ -88,6 +88,7 @@ function setProfileData() {
         .then((data) => {
             profileTitle.textContent = data.name;
             profileDescription.textContent = data.about;
+            profileAvatar.style.backgroundImage = `url(${data.avatar})`;
             currentUserId = data._id;
         })
         .catch((error) => {
