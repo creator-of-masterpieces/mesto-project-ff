@@ -127,4 +127,22 @@ const deleteLikeRequest = (cardID) => {
             return res.json();
         })
 }
+
+// Отправка нового аватара на сервер
+const sendAvatarData = (avatarUrl) => {
+    return fetch(`${config.baseURL}/users/me/avatar`, {
+        method: 'PATCH',
+        headers: {
+            authorization: config.headers.authorization,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({avatar: avatarUrl})
+    })
+        .then((res) => {
+            if(!res.ok) {
+                return Promise.reject(`Ошибка ${res.status}`);
+            }
+            return res.json();
+        })
+}
 export {getProfileData, sendProfileData, getCards, sendCard, deleteCardRequest, likeCardRequest, deleteLikeRequest};
