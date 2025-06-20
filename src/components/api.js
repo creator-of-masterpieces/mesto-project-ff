@@ -145,4 +145,4 @@ const sendAvatarData = (avatarUrl) => {
             return res.json();
         })
 }
-export {getProfileData, sendProfileData, getCards, sendCard, deleteCardRequest, likeCardRequest, deleteLikeRequest};
+export {getProfileData, sendProfileData, getCards, sendCard, deleteCardRequest, likeCardRequest, deleteLikeRequest, sendAvatarData};
