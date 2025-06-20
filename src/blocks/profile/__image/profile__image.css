@@ -8,6 +8,10 @@
   background-position: center;
   margin: 0 29px 0 0;
 }
+.profile__image:hover {
+  cursor: pointer;
+}
+
 
 @media screen and (max-width: 740px) {
   .profile__image {

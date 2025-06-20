@@ -38,12 +38,16 @@ const profileTitle = $('.profile__title');
 // Описание профиля
 const profileDescription = $('.profile__description');
 
+// Аватар профиля
+const profileAvatar = $('.profile__image');
+
 // Попапы и элементы попапов
 const popups = document.querySelectorAll('.popup');
 const editProfilePopup = $('.popup_type_edit');
 const addCardPopup = $('.popup_type_new-card');
 const popupCardImage = $('.popup_type_image');
 const popupDeleteCard = $('.popup_type_delete-card');
+const changeAvatarPopup = $('.popup_type_update-avatar');
 const buttonConfirmPopupDeleteCard = popupDeleteCard.querySelector('.popup__button');
 
 // Попап подтверждения удаления карточки
@@ -231,6 +235,9 @@ formAddCard.addEventListener('submit', handleAddCardSubmit);
 popupAddCardButton.addEventListener('click', () => {
     openPopup(addCardPopup);
 });
+profileAvatar.addEventListener('click', () => {
+    openPopup(changeAvatarPopup);
+})
 
 // Вешает обработчик клика на кнопку закрытия
 popupCloseButtons.forEach(handleCardCloseButtonClick);
