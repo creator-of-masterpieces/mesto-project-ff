@@ -1,0 +1,44 @@
+# === System trash ===
+.DS_Store
+Thumbs.db
+
+# === IDE settings ===
+.idea/
+.vscode/
+*.suo
+*.njsproj
+*.sln
+*.sw?
+
+# === Node dependencies ===
+node_modules/
+
+# === Build output ===
+dist/
+build/
+*.bundle.js
+*.bundle.js.map
+
+# === Coverage & Reports ===
+coverage/
+.nyc_output/
+
+# === Caches ===
+.cache/
+*.cache
+.eslintcache
+
+# === Logs ===
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# === Environment variables ===
+.env
+.env.*
+!.env.example          # оставляем образец для коллег
+
+# === Misc artifacts ===
+*.tgz
+*.zip
