@@ -95,6 +95,10 @@ const validationConfig = {
     errorClass: 'popup__error_visible'
 };
 
+// Кнопки сабмита форм
+const submitButtonEditProfile = formEditProfile.querySelector(validationConfig.submitButtonSelector);
+const submitButtonAddCard = formAddCard.querySelector(validationConfig.submitButtonSelector);
+const submitButtonChangeAvatar = formChangeAvatar.querySelector(validationConfig.submitButtonSelector);
 
 // Функции
 
@@ -135,6 +139,7 @@ function handleEditButtonClick() {
  */
 function handleEditProfileSubmit(e) {
     e.preventDefault();
+    renderLoading(true, submitButtonEditProfile);
     const profileData = {
         name: profileNameInput.value,
         about: profileDescriptionInput.value
@@ -147,13 +152,21 @@ function handleEditProfileSubmit(e) {
         .catch((error) => {
             handleApiError(error, 'Не удалось обновить профиль');
         })
-    closePopup(editProfilePopup);
+        .finally(() => {
+            renderLoading(false, submitButtonEditProfile);
+            closePopup(editProfilePopup);
+        })
 }
 
 // Обработчик ошибки обмена данных с сервером
 function handleApiError(error, userMessage = 'Что-то пошло не так') {
     console.log(`${userMessage} ${error}`);
     alert(`${userMessage}`);
+}
+
+// Отображает состояние загрузки на кнопке сабмита формы
+function renderLoading(isLoading, button, defaultText = 'Сохранить') {
+    button.textContent = isLoading ? 'Сохранение...' : defaultText;
 }
 
 /**
@@ -163,6 +176,7 @@ function handleApiError(error, userMessage = 'Что-то пошло не так
  */
 function handleAddCardSubmit(e) {
     e.preventDefault();
+    renderLoading(true, submitButtonAddCard);
 
     // Собирает данные пользователя
     const cardDraft = {
@@ -177,25 +191,32 @@ function handleAddCardSubmit(e) {
             placesCardList.prepend(newCard);
             formAddCard.reset();
             clearValidation(formAddCard, validationConfig);
-            closePopup(addCardPopup);
         })
         .catch((error) => {
             handleApiError(error, 'Не удалось добавить карточку');
+        })
+        .finally(()=>{
+            renderLoading(false, submitButtonAddCard);
+            closePopup(addCardPopup);
         })
 }
 
 // Обработчик отправки формы обновления аватара
 function handleChangeAvatarSubmit(e) {
     e.preventDefault();
+    renderLoading(true, submitButtonChangeAvatar);
     sendAvatarData(avatarLinkInput.value)
         .then((profile) => {
             profileAvatar.style.backgroundImage = `url(${profile.avatar})`;
             formChangeAvatar.reset();
             clearValidation(formChangeAvatar, validationConfig);
-            closePopup(changeAvatarPopup);
         })
         .catch((error) => {
             handleApiError(error, 'Не удалось обновить аватар');
+        })
+        .finally(()=> {
+            renderLoading(false, submitButtonChangeAvatar);
+            closePopup(changeAvatarPopup);
         })
 }
 
@@ -220,7 +241,7 @@ function prepareDelete(id, card) {
 // Обработчик клика на кнопку подтверждения попапа удаления карточки
 buttonConfirmPopupDeleteCard.addEventListener('click', () => {
     deleteCardRequest(doomedCardID)
-        .then(()=>{
+        .then(() => {
             deleteCard(doomedCardElement);
         })
         .catch((err) => {
