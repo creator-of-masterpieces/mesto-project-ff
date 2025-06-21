@@ -79,6 +79,13 @@ const placeNameInput = formAddCard.elements['place-name'];
 // Текстовое поле со ссылкой на картинку формы добавления карточки
 const placeLinkInput = formAddCard.elements['link'];
 
+// Форма обновления аватара
+const formChangeAvatar = document.forms['new-avatar'];
+
+// Поле со ссылкой на аватар
+const avatarLinkInput = formChangeAvatar.elements['link'];
+
+
 // Функции
 
 // Принимает объект с данными профиля пользователя.
@@ -165,6 +172,20 @@ function handleAddCardSubmit(e) {
         })
 }
 
+// Обработчик отправки формы обновления аватара
+function handleChangeAvatarSubmit(e) {
+    e.preventDefault();
+    sendAvatarData(avatarLinkInput.value)
+        .then((profile) => {
+            profileAvatar.style.backgroundImage = `url(${profile.avatar})`;
+            formChangeAvatar.reset();
+            closePopup(changeAvatarPopup);
+        })
+        .catch((error) => {
+            handleApiError(error, 'Не удалось обновить аватар');
+        })
+}
+
 /**
  * Обработчик клика на кнопку закрытия.
  * @param {HTMLElement} button - Кнопка закрытия.
@@ -233,6 +254,7 @@ function handleCardImageClick(card) {
 popupEditButton.addEventListener('click', handleEditButtonClick);
 formEditProfile.addEventListener('submit', handleEditProfileSubmit);
 formAddCard.addEventListener('submit', handleAddCardSubmit);
+formChangeAvatar.addEventListener('submit', handleChangeAvatarSubmit);
 popupAddCardButton.addEventListener('click', () => {
     openPopup(addCardPopup);
 });
