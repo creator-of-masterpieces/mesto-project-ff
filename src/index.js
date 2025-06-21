@@ -13,6 +13,7 @@ import {createCard, deleteCard, handleLikeButtonClick} from './components/card.j
 import {openPopup, closePopup, addOverlayClickHandler} from './components/modal.js';
 import './pages/index.css';
 import {getProfileData, sendProfileData, getCards, sendCard, deleteCardRequest, sendAvatarData} from "./components/api";
+import {enableValidation, clearValidation} from './components/validation.js';
 
 // 2. Утилиты DOM: сокращения для document.querySelector и document.querySelectorAll
 export const $ = document.querySelector.bind(document);
@@ -85,6 +86,15 @@ const formChangeAvatar = document.forms['new-avatar'];
 // Поле со ссылкой на аватар
 const avatarLinkInput = formChangeAvatar.elements['link'];
 
+const validationConfig = {
+    formSelector: '.popup__form',
+    inputSelector: '.popup__input',
+    submitButtonSelector: '.popup__button',
+    inactiveButtonClass: 'popup__button_disabled',
+    inputErrorClass: 'popup__input_type_error',
+    errorClass: 'popup__error_visible'
+};
+
 
 // Функции
 
@@ -114,6 +124,7 @@ function setProfileData() {
 function handleEditButtonClick() {
     profileNameInput.value = profileTitle.textContent;
     profileDescriptionInput.value = profileDescription.textContent;
+    clearValidation(formEditProfile, validationConfig);
     openPopup(editProfilePopup);
 }
 
@@ -165,6 +176,7 @@ function handleAddCardSubmit(e) {
             const newCard = createCard(cardFromServer, currentUserId, prepareDelete, handleCardImageClick, handleLikeButtonClick);
             placesCardList.prepend(newCard);
             formAddCard.reset();
+            clearValidation(formAddCard, validationConfig);
             closePopup(addCardPopup);
         })
         .catch((error) => {
@@ -179,6 +191,7 @@ function handleChangeAvatarSubmit(e) {
         .then((profile) => {
             profileAvatar.style.backgroundImage = `url(${profile.avatar})`;
             formChangeAvatar.reset();
+            clearValidation(formChangeAvatar, validationConfig);
             closePopup(changeAvatarPopup);
         })
         .catch((error) => {
@@ -256,9 +269,14 @@ formEditProfile.addEventListener('submit', handleEditProfileSubmit);
 formAddCard.addEventListener('submit', handleAddCardSubmit);
 formChangeAvatar.addEventListener('submit', handleChangeAvatarSubmit);
 popupAddCardButton.addEventListener('click', () => {
+    clearValidation(formAddCard, validationConfig);
+    formAddCard.reset();
     openPopup(addCardPopup);
 });
+
 profileAvatar.addEventListener('click', () => {
+    clearValidation(formChangeAvatar, validationConfig);
+    formChangeAvatar.reset();
     openPopup(changeAvatarPopup);
 })
 
@@ -285,6 +303,7 @@ getCards()
 // Получает данные профиля с сервера и устанавливает их
 setProfileData();
 
+enableValidation(validationConfig);
 
 
 
