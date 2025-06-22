@@ -157,11 +157,11 @@ function handleEditProfileSubmit(evt) {
         .then((data) => {
             profileTitle.textContent = data.name;
             profileDescription.textContent = data.about;
+            closePopup(editProfilePopup);
         })
         .catch((error) => handleApiError(error, 'Не удалось обновить профиль'))
         .finally(() => {
             renderLoading(false, submitButtonEditProfile);
-            closePopup(editProfilePopup);
         });
 }
 
@@ -182,11 +182,11 @@ function handleAddCardSubmit(evt) {
             placesCardList.prepend(createCard(card, currentUserId, prepareDelete, handleCardImageClick, handleLikeButtonClick));
             formAddCard.reset();
             clearValidation(formAddCard, validationConfig);
+            closePopup(addCardPopup);
         })
         .catch((error) => handleApiError(error, 'Не удалось добавить карточку'))
         .finally(() => {
             renderLoading(false, submitButtonAddCard);
-            closePopup(addCardPopup);
         });
 }
 
@@ -202,11 +202,11 @@ function handleChangeAvatarSubmit(evt) {
             profileAvatar.style.backgroundImage = `url(${profile.avatar})`;
             formChangeAvatar.reset();
             clearValidation(formChangeAvatar, validationConfig);
+            closePopup(changeAvatarPopup);
         })
         .catch((error) => handleApiError(error, 'Не удалось обновить аватар'))
         .finally(() => {
             renderLoading(false, submitButtonChangeAvatar);
-            closePopup(changeAvatarPopup);
         });
 }
 
@@ -216,15 +216,17 @@ function handleChangeAvatarSubmit(evt) {
 function prepareDelete(id, cardElement) {
     doomedCardID = id;
     doomedCardElement = cardElement;
-    openPopup(deleteCardPopup);
+    openPopup(popupDeleteCard);
 }
 
 // Подтверждение удаления
 buttonConfirmPopupDeleteCard.addEventListener('click', () => {
     deleteCardRequest(doomedCardID)
-        .then(() => deleteCard(doomedCardElement))
+        .then(() =>{
+            deleteCard(doomedCardElement);
+            closePopup(popupDeleteCard);
+        })
         .catch((error) => handleApiError(error, 'Ошибка при удалении карточки'))
-        .finally(() => closePopup(popupDeleteCard));
 });
 
 /**
