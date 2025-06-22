@@ -1,50 +1,49 @@
 /**
- * Открывает попап.
- * Добавляет элементу класс "popup_is-opened" для отображения.
- * Добавляет обработчик события нажатия клавиши Escape для закрытия попапа.
- *
- * @param {Element} element - DOM-элемент попапа для открытия.
+ * Modal helpers for Mesto project
+ * --------------------------------
+ * Управляет открытием/закрытием попап‑окон, добавляет обработчики
+ * клавиши Escape и клика по оверлею. Все функции чистые: принимают
+ * DOM‑элемент попапа и ничего не знают о внутренней разметке.
  */
-function openPopup(element) {
-    element.classList.add('popup_is-opened');
+
+/**
+ * Открывает попап и вешает обработчик Escape.
+ * @param {HTMLElement} popup – элемент с классом .popup
+ */
+export function openPopup(popup) {
+    popup.classList.add('popup_is-opened');
     document.addEventListener('keydown', handleEscape);
 }
 
 /**
- * Закрывает попап.
- * Удаляет у элемента класс "popup_is-opened".
- * Удаляет обработчик события нажатия клавиши Escape.
- *
- * @param {Element} element - DOM-элемент попапа для закрытия.
+ * Закрывает попап и снимает обработчик Escape.
+ * @param {HTMLElement} popup – тот же элемент, что открывали
  */
-function closePopup(element) {
-    element.classList.remove('popup_is-opened');
+export function closePopup(popup) {
+    popup.classList.remove('popup_is-opened');
     document.removeEventListener('keydown', handleEscape);
 }
 
 /**
- * Обработчик события нажатия клавиши Escape.
- *
- * @param {KeyboardEvent} e - Объект события клавиатуры.
+ * Закрывает открытую модалку по Esc.
+ * @param {KeyboardEvent} evt
+ * @private
  */
-function handleEscape(e) {
-    if (e.key === 'Escape') {
-        const openedPopup = document.querySelector('.popup_is-opened');
-        closePopup(openedPopup);
+function handleEscape(evt) {
+    if (evt.key === 'Escape') {
+        const opened = document.querySelector('.popup_is-opened');
+        if (opened) closePopup(opened);
     }
 }
 
 /**
- * Добавляет обработчик закрытия попапа при клике на оверлей (фон попапа).
- * Если клик происходит по самому оверлею, попап закрывается.
- * @param {HTMLElement} popup - DOM-элемент попапа.
+ * Навешивает закрытие по клику на overlay.
+ * @param {HTMLElement} popup – элемент pop‑up'а
  */
-function addOverlayClickHandler(popup) {
-    popup.addEventListener('click', (e) => {
-        if (e.target === e.currentTarget) {
+export function addOverlayClickHandler(popup) {
+    popup.addEventListener('click', (evt) => {
+        if (evt.target === evt.currentTarget) {
             closePopup(popup);
         }
-    })
+    });
 }
-
-export {openPopup, closePopup, addOverlayClickHandler};

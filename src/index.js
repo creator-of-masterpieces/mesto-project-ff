@@ -1,109 +1,106 @@
 /**
- * Главный модуль приложения: подключает стили, модули, инициализирует интерфейс и взаимодействие.
+ * Entry‑point of the Mesto SPA
+ * ============================
+ * Подключает все вспомогательные модули, навешивает слушатели,
+ * инициализирует состояние приложения и отвечает за high‑level
+ * пользовательские сценарии.
  *
- * Импортирует:
- * - Функции управления лайками карточек
- * - Функции открытия и закрытия модальных окон
- * - Начальные данные карточек
- * - Основной CSS файл
+ * Импортируемые сущности:
+ * • card.js   – фабрика карточек и связанные хелперы (лайк, удаление)
+ * • modal.js  – открытие/закрытие попапов + overlay‑handler
+ * • api.js    – все сетевые запросы
+ * • validation.js – валидация форм
+ * • index.css – базовые стили (веб‑пак соберёт самостоятельно)
  */
 
+// ────────────────────────────────────────────────────────────────
 // 1. Импорты
-import {createCard, deleteCard, handleLikeButtonClick} from './components/card.js';
-import {openPopup, closePopup, addOverlayClickHandler} from './components/modal.js';
+// ────────────────────────────────────────────────────────────────
+import { createCard, deleteCard, handleLikeButtonClick } from './components/card.js';
+import { openPopup, closePopup, addOverlayClickHandler } from './components/modal.js';
 import './pages/index.css';
-import {getProfileData, sendProfileData, getCards, sendCard, deleteCardRequest, sendAvatarData} from "./components/api";
-import {enableValidation, clearValidation} from './components/validation.js';
+import {
+    getProfileData,
+    sendProfileData,
+    getCards,
+    sendCard,
+    deleteCardRequest,
+    sendAvatarData,
+} from './components/api';
+import { enableValidation, clearValidation } from './components/validation.js';
 
-// 2. Утилиты DOM: сокращения для document.querySelector и document.querySelectorAll
-export const $ = document.querySelector.bind(document);
-export const $$ = document.querySelectorAll.bind(document);
+// ────────────────────────────────────────────────────────────────
+// 2. Утилиты DOM
+// ────────────────────────────────────────────────────────────────
+export const $ = document.querySelector.bind(document); // однократный поиск
+export const $$ = document.querySelectorAll.bind(document); // nodelist‑коллекция
 
-// 3. DOM-элементы и переменные
-
-// Список карточек
+// ────────────────────────────────────────────────────────────────
+// 3. DOM‑селекторы / переменные состояния
+// ────────────────────────────────────────────────────────────────
 const placesCardList = $('.places__list');
-
-// Кнопка открытия попапа редактирования профиля
 const popupEditButton = $('.profile__edit-button');
-
-// Кнопка открытия попапа добавления карточки
 const popupAddCardButton = $('.profile__add-button');
-
-// Кнопки закрытия попапов
 const popupCloseButtons = $$('.popup__close');
-
-// Заголовок профиля
 const profileTitle = $('.profile__title');
-
-// Описание профиля
 const profileDescription = $('.profile__description');
-
-// Аватар профиля
 const profileAvatar = $('.profile__image');
 
-// Попапы и элементы попапов
-const popups = document.querySelectorAll('.popup');
+// Попап‑контейнеры
+const popups = $$('.popup');
 const editProfilePopup = $('.popup_type_edit');
 const addCardPopup = $('.popup_type_new-card');
 const popupCardImage = $('.popup_type_image');
 const popupDeleteCard = $('.popup_type_delete-card');
 const changeAvatarPopup = $('.popup_type_update-avatar');
+
+// Кнопка подтверждения удаления
 const buttonConfirmPopupDeleteCard = popupDeleteCard.querySelector('.popup__button');
 
-// Попап подтверждения удаления карточки
-const deleteCardPopup = document.querySelector('.popup_type_delete-card');
-
-// Данные удаляемой карточки
+// Данные удаляемой карточки (храним до подтверждения)
 let doomedCardID = null;
 let doomedCardElement = null;
 
-// Идентификатор текущего пользователя
+// Текущий пользователь
 let currentUserId;
 
-// Формы
-// Форма редактирования профиля
+// ────────────────────────────────────────────────────────────────
+// 4. Формы и их элементы
+// ────────────────────────────────────────────────────────────────
 const formEditProfile = document.forms['edit-profile'];
-
-// input с именем пользователя формы редактирования профиля
 const profileNameInput = formEditProfile.elements['profile-name'];
-
-// input с профессией пользователя формы редактирования профиля
 const profileDescriptionInput = formEditProfile.elements['description'];
 
-// Форма добавления карточки
 const formAddCard = document.forms['new-place'];
-
-// Текстовое поле с названием места формы добавления карточки
 const placeNameInput = formAddCard.elements['place-name'];
-
-// Текстовое поле со ссылкой на картинку формы добавления карточки
 const placeLinkInput = formAddCard.elements['link'];
 
-// Форма обновления аватара
 const formChangeAvatar = document.forms['new-avatar'];
-
-// Поле со ссылкой на аватар
 const avatarLinkInput = formChangeAvatar.elements['link'];
 
+// Конфиг валидатора (переиспользуется во всех формах)
 const validationConfig = {
     formSelector: '.popup__form',
     inputSelector: '.popup__input',
     submitButtonSelector: '.popup__button',
     inactiveButtonClass: 'popup__button_disabled',
     inputErrorClass: 'popup__input_type_error',
-    errorClass: 'popup__error_visible'
+    errorClass: 'popup__error_visible',
 };
 
-// Кнопки сабмита форм
+// Кнопки сабмита (нужны для display «Сохранение…»)
 const submitButtonEditProfile = formEditProfile.querySelector(validationConfig.submitButtonSelector);
 const submitButtonAddCard = formAddCard.querySelector(validationConfig.submitButtonSelector);
 const submitButtonChangeAvatar = formChangeAvatar.querySelector(validationConfig.submitButtonSelector);
 
-// Функции
+// ────────────────────────────────────────────────────────────────
+// 5. Логика: API → UI
+// ────────────────────────────────────────────────────────────────
 
-// Принимает объект с данными профиля пользователя.
-// Устанавливает имя и описание профиля
+/**
+ * Получает профиль с сервера и пишет его в DOM.
+ * Вызывается один раз при старте.
+ */
 function setProfileData() {
     getProfileData()
         .then((data) => {
@@ -112,18 +109,31 @@ function setProfileData() {
             profileAvatar.style.backgroundImage = `url(${data.avatar})`;
             currentUserId = data._id;
         })
-        .catch((error) => {
-            handleApiError(error, 'Не удалось загрузить профиль пользователя');
-        })
+        .catch((error) => handleApiError(error, 'Не удалось загрузить профиль пользователя'));
 }
 
 /**
- * Обработчик клика кнопки редактирования профиля.
- *
- * При клике:
- * - Подставляет текущие значения имени и описания профиля
- *   в соответствующие поля формы.
- * - Открывает попап с формой редактирования профиля.
+ * UI‑helper: показывает «Сохранение…» на кнопке сабмита.
+ */
+function renderLoading(isLoading, button, defaultText = 'Сохранить') {
+    button.textContent = isLoading ? 'Сохранение…' : defaultText;
+}
+
+/**
+ * Унифицированный вывод ошибок API.
+ */
+function handleApiError(error, userMessage = 'Что‑то пошло не так') {
+    /* eslint‑disable no‑alert */
+    console.error(userMessage, error);
+    alert(userMessage);
+}
+
+// ────────────────────────────────────────────────────────────────
+// 6. Handlers (обработчики событий)
+// ────────────────────────────────────────────────────────────────
+
+/**
+ * Открывает попап редактирования профиля и префилл‑ит текущие значения.
  */
 function handleEditButtonClick() {
     profileNameInput.value = profileTitle.textContent;
@@ -133,198 +143,145 @@ function handleEditButtonClick() {
 }
 
 /**
- * Обработчик отправки формы редактирования профиля.
- * Обновляет содержимое профиля и закрывает попап.
- * @param {Event} e - Объект события отправки формы.
+ * submit → PATCH /users/me → обновляем DOM и закрываем попап.
  */
-function handleEditProfileSubmit(e) {
-    e.preventDefault();
+function handleEditProfileSubmit(evt) {
+    evt.preventDefault();
     renderLoading(true, submitButtonEditProfile);
     const profileData = {
         name: profileNameInput.value,
-        about: profileDescriptionInput.value
-    }
+        about: profileDescriptionInput.value,
+    };
+
     sendProfileData(profileData)
-        .then((profileData) => {
-            profileTitle.textContent = profileData.name;
-            profileDescription.textContent = profileData.about;
+        .then((data) => {
+            profileTitle.textContent = data.name;
+            profileDescription.textContent = data.about;
         })
-        .catch((error) => {
-            handleApiError(error, 'Не удалось обновить профиль');
-        })
+        .catch((error) => handleApiError(error, 'Не удалось обновить профиль'))
         .finally(() => {
             renderLoading(false, submitButtonEditProfile);
             closePopup(editProfilePopup);
-        })
-}
-
-// Обработчик ошибки обмена данных с сервером
-function handleApiError(error, userMessage = 'Что-то пошло не так') {
-    console.log(`${userMessage} ${error}`);
-    alert(`${userMessage}`);
-}
-
-// Отображает состояние загрузки на кнопке сабмита формы
-function renderLoading(isLoading, button, defaultText = 'Сохранить') {
-    button.textContent = isLoading ? 'Сохранение...' : defaultText;
+        });
 }
 
 /**
- * Обработчик отправки формы добавления карточки.
- * Создаёт и добавляет карточку в начало списка.
- * @param {Event} e - Объект события отправки формы.
+ * submit → POST /cards → prepend карточку в список.
  */
-function handleAddCardSubmit(e) {
-    e.preventDefault();
+function handleAddCardSubmit(evt) {
+    evt.preventDefault();
     renderLoading(true, submitButtonAddCard);
 
-    // Собирает данные пользователя
     const cardDraft = {
         name: placeNameInput.value,
-        link: placeLinkInput.value
-    }
+        link: placeLinkInput.value,
+    };
 
-    // Отправляет данные на сервер
     sendCard(cardDraft)
-        .then((cardFromServer) => {
-            const newCard = createCard(cardFromServer, currentUserId, prepareDelete, handleCardImageClick, handleLikeButtonClick);
-            placesCardList.prepend(newCard);
+        .then((card) => {
+            placesCardList.prepend(createCard(card, currentUserId, prepareDelete, handleCardImageClick, handleLikeButtonClick));
             formAddCard.reset();
             clearValidation(formAddCard, validationConfig);
         })
-        .catch((error) => {
-            handleApiError(error, 'Не удалось добавить карточку');
-        })
-        .finally(()=>{
+        .catch((error) => handleApiError(error, 'Не удалось добавить карточку'))
+        .finally(() => {
             renderLoading(false, submitButtonAddCard);
             closePopup(addCardPopup);
-        })
+        });
 }
 
-// Обработчик отправки формы обновления аватара
-function handleChangeAvatarSubmit(e) {
-    e.preventDefault();
+/**
+ * submit → PATCH /avatar → меняем фон‑картинку аватара.
+ */
+function handleChangeAvatarSubmit(evt) {
+    evt.preventDefault();
     renderLoading(true, submitButtonChangeAvatar);
+
     sendAvatarData(avatarLinkInput.value)
         .then((profile) => {
             profileAvatar.style.backgroundImage = `url(${profile.avatar})`;
             formChangeAvatar.reset();
             clearValidation(formChangeAvatar, validationConfig);
         })
-        .catch((error) => {
-            handleApiError(error, 'Не удалось обновить аватар');
-        })
-        .finally(()=> {
+        .catch((error) => handleApiError(error, 'Не удалось обновить аватар'))
+        .finally(() => {
             renderLoading(false, submitButtonChangeAvatar);
             closePopup(changeAvatarPopup);
-        })
+        });
 }
 
 /**
- * Обработчик клика на кнопку закрытия.
- * @param {HTMLElement} button - Кнопка закрытия.
+ * Клик по иконке урны на карточке → спрашиваем подтверждение.
  */
-function handleCardCloseButtonClick(button) {
-    button.addEventListener('click', () => {
-        closePopup(button.closest('.popup'));
-    })
-}
-
-// Обработчик клика на иконку удаления карточки (внутри карточки)
-function prepareDelete(id, card) {
+function prepareDelete(id, cardElement) {
     doomedCardID = id;
-    doomedCardElement = card;
+    doomedCardElement = cardElement;
     openPopup(deleteCardPopup);
 }
 
-
-// Обработчик клика на кнопку подтверждения попапа удаления карточки
+// Подтверждение удаления
 buttonConfirmPopupDeleteCard.addEventListener('click', () => {
     deleteCardRequest(doomedCardID)
-        .then(() => {
-            deleteCard(doomedCardElement);
-        })
-        .catch((err) => {
-            handleApiError(err, 'Ошибка при удалении карточки');
-        })
-        .finally(() => {
-            closePopup(popupDeleteCard);
-        })
-})
-
+        .then(() => deleteCard(doomedCardElement))
+        .catch((error) => handleApiError(error, 'Ошибка при удалении карточки'))
+        .finally(() => closePopup(popupDeleteCard));
+});
 
 /**
- * Обработчик клика по карточке.
- * Копирует src и alt картинки карточки в картинку попапа.
- * Копирует заголовок карточки в текст попапа
- * @param {HTMLElement} card - Элемент карточки.
+ * Клик по картинке карточки → открываем попап‑просмотр.
  */
 function handleCardImageClick(card) {
-    // Картинка карточки
     const cardImage = card.querySelector('.card__image');
-
-    // Заголовок карточки
     const cardTitle = card.querySelector('.card__title');
-
-    // Картинка попапа
     const imagePopup = popupCardImage.querySelector('.popup__image');
-
-    // Текст попапа
     const textPopup = popupCardImage.querySelector('.popup__caption');
 
-    // Копирует заголовок карточки в текст попапа
     textPopup.textContent = cardTitle.textContent;
-
-    //Копирует src и alt картинки карточки в картинку попапа
-    Object.assign(imagePopup, {
-        src: cardImage.src,
-        alt: cardImage.alt,
-    })
+    Object.assign(imagePopup, { src: cardImage.src, alt: cardImage.alt });
     openPopup(popupCardImage);
 }
 
+// Закрытие попапа по клику на крестик
+popupCloseButtons.forEach((btn) => btn.addEventListener('click', () => closePopup(btn.closest('.popup'))));
 
-// 5. Слушатели событий
-popupEditButton.addEventListener('click', handleEditButtonClick);
-formEditProfile.addEventListener('submit', handleEditProfileSubmit);
-formAddCard.addEventListener('submit', handleAddCardSubmit);
-formChangeAvatar.addEventListener('submit', handleChangeAvatarSubmit);
+// Клик по оверлею → закрыть
+popups.forEach(addOverlayClickHandler);
+
+// Кнопки «плюс» и «аватар»
 popupAddCardButton.addEventListener('click', () => {
-    clearValidation(formAddCard, validationConfig);
     formAddCard.reset();
+    clearValidation(formAddCard, validationConfig);
     openPopup(addCardPopup);
 });
 
 profileAvatar.addEventListener('click', () => {
-    clearValidation(formChangeAvatar, validationConfig);
     formChangeAvatar.reset();
+    clearValidation(formChangeAvatar, validationConfig);
     openPopup(changeAvatarPopup);
-})
+});
 
-// Вешает обработчик клика на кнопку закрытия
-popupCloseButtons.forEach(handleCardCloseButtonClick);
+popupEditButton.addEventListener('click', handleEditButtonClick);
+formEditProfile.addEventListener('submit', handleEditProfileSubmit);
+formAddCard.addEventListener('submit', handleAddCardSubmit);
+formChangeAvatar.addEventListener('submit', handleChangeAvatarSubmit);
 
-// Вешает обработчик клика на оверлэй
-popups.forEach(addOverlayClickHandler);
+// ────────────────────────────────────────────────────────────────
+// 7. Bootstrap
+// ────────────────────────────────────────────────────────────────
 
-// 6. Инициализация
-/**
- * Инициализация начальных карточек.
- * Перебирает массив с данными карточек,
- * передаёт данные карточек в функцию создания карточки
- */
-getCards()
-    .then((cards) => {
-        cards.forEach((item) => {
-            // Добавляет на страницу список заполненных карточек
-            placesCardList.append(createCard(item, currentUserId, prepareDelete, handleCardImageClick, handleLikeButtonClick));
+// 7.1. Загружаем карточки и профиль параллельно
+Promise.all([getCards(), getProfileData()])
+    .then(([cards, profile]) => {
+        currentUserId = profile._id;
+        profileTitle.textContent = profile.name;
+        profileDescription.textContent = profile.about;
+        profileAvatar.style.backgroundImage = `url(${profile.avatar})`;
+
+        cards.forEach((card) => {
+            placesCardList.append(createCard(card, currentUserId, prepareDelete, handleCardImageClick, handleLikeButtonClick));
         });
     })
+    .catch((error) => handleApiError(error, 'Ошибка инициализации'));
 
-// Получает данные профиля с сервера и устанавливает их
-setProfileData();
-
+// 7.2. Включаем валидацию
 enableValidation(validationConfig);
-
-
-

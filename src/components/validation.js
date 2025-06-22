@@ -1,47 +1,64 @@
 /**
+ * Form‑validation utilities for Mesto project
+ * ------------------------------------------
+ * Добавляет HTML‑5 проверку полей, отображает кастомные ошибки и
+ * динамически включает/выключает кнопку отправки. Все функции
+ * экспортируются для переиспользования в любом попапе.
+ */
+
+/**
  * Показывает текст ошибки валидации рядом с полем и
  * визуально подсвечивает само поле.
  *
  * @param {HTMLFormElement} formElement   – форма, внутри которой ищем ошибку
  * @param {HTMLInputElement} inputElement – само поле ввода
  * @param {string} errorMessage           – человекочитаемый текст ошибки
- * @param {Object} config                 – объект с CSS-классами и селекторами
+ * @param {{inputErrorClass:string,errorClass:string}} config – CSS‑классы
  */
 export function showInputError(formElement, inputElement, errorMessage, config) {
-    // Находим <span class="ИмяПоля-error"> по соглашению «id + "-error"»
+    // <span class="ИмяПоля-error"> — создаётся в разметке формы
     const errorElement = formElement.querySelector(`.${inputElement.id}-error`);
-    // Добавляем рамку/красный фон и т. д.
     inputElement.classList.add(config.inputErrorClass);
-    // Пишем текст ошибки
     errorElement.textContent = errorMessage;
-    // Делаем <span> видимым (например, opacity: 1)
     errorElement.classList.add(config.errorClass);
 }
 
 /**
- * Скрывает ошибку и убирает стилевые индикаторы с инпута.
+ * Скрывает сообщение об ошибке и удаляет стили, указывающие на невалидное состояние поля ввода.
+ *
+ * @param {HTMLFormElement} formElement - Форма, содержащая поле ввода.
+ * @param {HTMLInputElement} inputElement - Поле ввода, с которого нужно снять ошибку.
+ * @param {Object} config - Конфигурационный объект с CSS-классами.
+ * @param {string} config.inputErrorClass - Класс, добавляемый невалидному инпуту.
+ * @param {string} config.errorClass - Класс, делающий сообщение об ошибке видимым.
+ *
+ * Удаляет визуальные индикаторы ошибки с поля ввода:
+ * - Убирает класс ошибки у input.
+ * - Очищает текст ошибки.
+ * - Сбрасывает кастомное сообщение об ошибке (если было установлено).
+ * - Прячет элемент с сообщением об ошибке.
  */
 export function hideInputError(formElement, inputElement, config) {
     const errorElement = formElement.querySelector(`.${inputElement.id}-error`);
     inputElement.classList.remove(config.inputErrorClass);
     errorElement.textContent = '';
+    inputElement.setCustomValidity('');
     errorElement.classList.remove(config.errorClass);
 }
 
 /**
  * Проверяет валидность одного поля и показывает / скрывает ошибку.
- *
- * Почему не используем HTML5-валидацию напрямую?
- * – Нужно собственное сообщение (dataset.errorMessage) для patternMismatch.
+ * HTML‑5 даёт готовые проверки, но для patternMismatch хотим своё сообщение.
+ * @private
  */
 function checkInputValidity(formElement, inputElement, config) {
-    // Если не совпадает regexp-pattern – подменяем стандартное сообщение
     if (inputElement.validity.patternMismatch) {
+        // Сообщение берём прямо из data‑атрибута в HTML
         inputElement.setCustomValidity(inputElement.dataset.errorMessage);
     } else {
         inputElement.setCustomValidity('');
     }
-    // По итогам решаем: показать ошибку или спрятать
+
     if (!inputElement.validity.valid) {
         showInputError(formElement, inputElement, inputElement.validationMessage, config);
     } else {
@@ -51,7 +68,8 @@ function checkInputValidity(formElement, inputElement, config) {
 
 /**
  * Есть хотя бы одно невалидное поле?
- * Используем метод some(), чтобы выйти при первой же ошибке – быстрее, чем every().
+ * @param {HTMLInputElement[]} inputList
+ * @returns {boolean}
  */
 function hasInvalidInput(inputList) {
     return inputList.some((inputElement) => !inputElement.validity.valid);
@@ -59,7 +77,9 @@ function hasInvalidInput(inputList) {
 
 /**
  * Активирует/дизэйблит кнопку сабмита в зависимости от валидности формы.
- * Не верим пользователю на слово – смотрим на реальное состояние полей.
+ * @param {HTMLInputElement[]} inputList
+ * @param {HTMLButtonElement} buttonElement
+ * @private
  */
 function toggleButtonState(inputList, buttonElement, config) {
     if (hasInvalidInput(inputList)) {
@@ -74,14 +94,14 @@ function toggleButtonState(inputList, buttonElement, config) {
 /**
  * Вешает обработчики input на все поля формы
  * и сразу синхронизирует состояние кнопки.
+ * @private
  */
 function setEventListeners(formElement, config) {
     const inputList = Array.from(formElement.querySelectorAll(config.inputSelector));
     const buttonElement = formElement.querySelector(config.submitButtonSelector);
-    // Первый прогон — чтобы кнопка была верно отключена при открытии модалки
-    toggleButtonState(inputList, buttonElement, config);
 
-    // «Живое» обновление ошибок и кнопки при каждом вводе символа
+    toggleButtonState(inputList, buttonElement, config); // стартовое состояние
+
     inputList.forEach((inputElement) => {
         inputElement.addEventListener('input', () => {
             checkInputValidity(formElement, inputElement, config);
@@ -91,33 +111,36 @@ function setEventListeners(formElement, config) {
 }
 
 /**
- * Главная функция-инициализатор. Вызываем один раз на старте приложения.
+ * Главная функция‑инициализатор. Вызываем один раз на старте приложения.
+ * Обходит все формы по селектору и подвязывает слушатели.
  *
- * @param {Object} config – те же селекторы и CSS-классы, что и выше.
+ * @param {{
+ *   formSelector:string,
+ *   inputSelector:string,
+ *   submitButtonSelector:string,
+ *   inactiveButtonClass:string,
+ *   inputErrorClass:string,
+ *   errorClass:string
+ * }} config – объект селекторов/классов
  */
 export function enableValidation(config) {
     const formList = Array.from(document.querySelectorAll(config.formSelector));
 
     formList.forEach((formElement) => {
-        // Блокируем стандартную отправку формы, чтобы SPA не «перезагружался».
-        formElement.addEventListener('submit', (evt) => {
-            evt.preventDefault();
-        });
+        // Блокируем стандартную отправку формы, чтобы SPA не перезагружался
+        formElement.addEventListener('submit', (evt) => evt.preventDefault());
         setEventListeners(formElement, config);
     });
 }
 
 /**
- * Полезно при открытии попапа редактирования, когда
- * нужно сбросить старые ошибки и обновить кнопку сабмита.
+ * Сбрасывает состояние ошибок и обновляет кнопку сабмита.
+ * Удобно вызывать при открытии попапа.
  */
 export function clearValidation(formElement, config) {
     const inputList = Array.from(formElement.querySelectorAll(config.inputSelector));
     const buttonElement = formElement.querySelector(config.submitButtonSelector);
 
-    inputList.forEach((inputElement) => {
-        hideInputError(formElement, inputElement, config);
-    });
-
+    inputList.forEach((inputElement) => hideInputError(formElement, inputElement, config));
     toggleButtonState(inputList, buttonElement, config);
 }
