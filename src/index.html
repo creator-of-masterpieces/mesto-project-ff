@@ -52,7 +52,8 @@
             <h3 class="popup__title">Редактировать профиль</h3>
 
             <form class="popup__form"
-                  name="edit-profile">
+                  name="edit-profile"
+                  novalidate>
                 <input
                         id="profile-name-input"
                         type="text"
@@ -95,7 +96,8 @@
                     class="popup__close"></button>
             <h3 class="popup__title">Новое место</h3>
             <form class="popup__form"
-                  name="new-place">
+                  name="new-place"
+                  novalidate>
                 <input
                         id="place-name-input"
                         type="text"
@@ -153,7 +155,8 @@
                 class="popup__close"></button>
         <h3 class="popup__title">Обновить аватар</h3>
         <form class="popup__form"
-              name="new-avatar">
+              name="new-avatar"
+              novalidate>
             <input class="popup__input popup__input_type_url"
                    id="avatar-link-input"
                    type="url"
@@ -163,7 +166,8 @@
             >
             <span class="popup__error avatar-link-input-error"></span>
             <button class="button popup__button popup__button_disabled"
-                    type="submit" disabled>Сохранить
+                    type="submit"
+                    disabled>Сохранить
             </button>
         </form>
     </div>
