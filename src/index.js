@@ -54,6 +54,11 @@ const popupCardImage = $('.popup_type_image');
 const popupDeleteCard = $('.popup_type_delete-card');
 const changeAvatarPopup = $('.popup_type_update-avatar');
 
+// Элементы попапов
+const popupImage = popupCardImage.querySelector('.popup__image');
+const popupCaption = popupCardImage.querySelector('.popup__caption');
+
+
 // Кнопка подтверждения удаления
 const buttonConfirmPopupDeleteCard = popupDeleteCard.querySelector('.popup__button');
 
@@ -230,16 +235,23 @@ buttonConfirmPopupDeleteCard.addEventListener('click', () => {
 });
 
 /**
- * Клик по картинке карточки → открываем попап‑просмотр.
+ * Открывает попап с полноразмерным изображением карточки.
+ *
+ * @param {{name: string, link: string}} arg
+ * @param {string} arg.name  – подпись к изображению; попадает в подпись
+ *                             под картинкой и в атрибут `alt`.
+ * @param {string} arg.link  – URL полноразмерного изображения; задаётся
+ *                             как `src` для тега `<img>`.
+ *
+ * Побочные эффекты:
+ * 1. Изменяет текстовое содержимое `popupCaption`.
+ * 2. Меняет `src` и `alt` у `popupImage`.
+ * 3. Вызывает утилиту `openPopup`, чтобы показать модальное окно `popupCardImage`.
  */
-function handleCardImageClick(card) {
-    const cardImage = card.querySelector('.card__image');
-    const cardTitle = card.querySelector('.card__title');
-    const imagePopup = popupCardImage.querySelector('.popup__image');
-    const textPopup = popupCardImage.querySelector('.popup__caption');
-
-    textPopup.textContent = cardTitle.textContent;
-    Object.assign(imagePopup, { src: cardImage.src, alt: cardImage.alt });
+function handleCardImageClick({ name, link }) {
+    popupCaption.textContent = name;
+    popupImage.src = link;
+    popupImage.alt = name;
     openPopup(popupCardImage);
 }
 

@@ -30,7 +30,13 @@ const cardTemplate = document.querySelector('#card-template').content;
  * @param {(btn:HTMLButtonElement)=>void} handleLikeButtonClick – визуально переключить лайк
  * @returns {HTMLElement}
  */
-export function createCard(cardData, currentUserId, deleteFunction, handleCardImageClick, handleLikeButtonClick) {
+export function createCard(
+    cardData,
+    currentUserId,
+    deleteFunction,
+    handleCardImageClick,
+    handleLikeButtonClick
+) {
     const cardItem = cardTemplate.querySelector('.card').cloneNode(true);
 
     // DOM‑части карточки
@@ -62,20 +68,26 @@ export function createCard(cardData, currentUserId, deleteFunction, handleCardIm
 
     // Переключение лайка
     likeButton.addEventListener('click', () => {
-        const request = likeButton.classList.contains('card__like-button_is-active')
-            ? deleteLikeRequest
-            : likeCardRequest;
+        let request;
+
+        if (likeButton.classList.contains('card__like-button_is-active')) {
+            // Уже лайкнули — значит снимаем
+            request = deleteLikeRequest;
+        } else {
+            // Ещё не лайкнули — ставим лайк
+            request = likeCardRequest;
+        }
 
         request(cardData._id)
             .then((updated) => {
-                handleLikeButtonClick(likeButton); // визуальное состояние
+                handleLikeButtonClick(likeButton);       // визуально переключаем сердечко
                 likeCounter.textContent = updated.likes.length; // обновляем счётчик
             })
             .catch(console.error);
     });
 
     // Открытие полноэкранного попапа
-    cardImage.addEventListener('click', () => handleCardImageClick(cardItem));
+    cardImage.addEventListener('click', () => handleCardImageClick(cardData));
 
     return cardItem;
 }
