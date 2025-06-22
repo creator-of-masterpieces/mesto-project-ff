@@ -76,10 +76,20 @@ function hasInvalidInput(inputList) {
 }
 
 /**
- * Активирует/дизэйблит кнопку сабмита в зависимости от валидности формы.
- * @param {HTMLInputElement[]} inputList
- * @param {HTMLButtonElement} buttonElement
- * @private
+ * Активирует или деактивирует кнопку отправки формы в зависимости от валидности всех полей ввода.
+ *
+ * @param {HTMLInputElement[]} inputList - Массив всех полей ввода формы, которые нужно проверить.
+ * @param {HTMLButtonElement} buttonElement - Кнопка отправки, которую нужно включить или выключить.
+ * @param {Object} config - Конфигурационный объект с CSS-классами.
+ * @param {string} config.inactiveButtonClass - Класс, применяемый к неактивной (задизейбленной) кнопке.
+ *
+ * Логика работы:
+ * - Если хотя бы одно поле ввода невалидно, кнопка:
+ *     - получает CSS-класс для неактивного состояния;
+ *     - становится недоступной (disabled).
+ * - Если все поля валидны, кнопка:
+ *     - лишается класса неактивности;
+ *     - становится доступной для нажатия.
  */
 function toggleButtonState(inputList, buttonElement, config) {
     if (hasInvalidInput(inputList)) {
